@@ -1,26 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
-const client = getSSLHubRpcClient("nemes.farcaster.xyz:2283");
-
-interface fidResponse {
-  verifications: string[];
-}
-async function getAddrByFid(fid: number) {
-  const options = {
-    method: "GET",
-    url: `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`,
-    headers: { accept: "application/json", api_key: "NEYNAR_API_DOCS" },
-  };
-  const resp = await fetch(options.url, { headers: options.headers });
-  const data = await resp.json();
-  if (data?.users) {
-    const userVerifications = data.users[0] as fidResponse;
-    if (userVerifications.verifications) {
-      return userVerifications.verifications[0];
-    }
-  }
-  return "0x00";
-}
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
   const query = req.nextUrl.searchParams;
@@ -45,6 +23,10 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
         </html>
     `);
 }
+export async function GET(req: NextRequest): Promise<Response> {
+  return getResponse(req);
+}
+
 export async function POST(req: NextRequest): Promise<Response> {
   return getResponse(req);
 }
