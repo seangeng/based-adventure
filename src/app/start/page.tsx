@@ -4,9 +4,15 @@ export default function StartScreen() {
       <head>
         <title>Mint</title>
         <meta property="og:title" content="Tested!" />
-        <meta property="og:image" content="/api/welcome" />
+        <meta
+          property="og:image"
+          content="https://based-adventure.vercel.app/api/welcome"
+        />
         <meta name="fc:frame" content="vNext" />
-        <meta name="fc:frame:image" content="/api/welcome" />
+        <meta
+          name="fc:frame:image"
+          content="https://based-adventure.vercel.app/api/welcome"
+        />
         <meta
           name="fc:frame:post_url"
           content="https://based-adventure.vercel.app/api/start"
