@@ -27,7 +27,7 @@ export async function GET() {
           fontFamily: '"Typewriter"',
         }}
       >
-        <span>👋 Hello adventurer, let's begin.</span>
+        <span>{`👋 Hello adventurer, let's begin.`}</span>
         <div
           style={{
             display: "flex",
