@@ -15,7 +15,7 @@ export default function StartScreen() {
         />
         <meta
           name="fc:frame:post_url"
-          content="https://based-adventure.vercel.app/api/start"
+          content="https://eo6m4ikat6vrxtj.m.pipedream.net"
         />
         <meta name="fc:frame:button:1" content="Minted to" />
       </head>
