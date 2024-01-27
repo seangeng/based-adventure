@@ -5,7 +5,12 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
 
   console.log("query", query);
 
-  return new NextResponse(`
+  const headers = {
+    "Content-Type": "text/html",
+  };
+
+  return new NextResponse(
+    `
     <!DOCTYPE html>
         <html>
         <head>
@@ -21,7 +26,9 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
             <p>Choose your own text based adventure.</p>
         </body>
         </html>
-    `);
+    `,
+    { headers }
+  );
 }
 export async function GET(req: NextRequest): Promise<Response> {
   return getResponse(req);
