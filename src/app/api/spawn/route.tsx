@@ -4,6 +4,10 @@ const client = getSSLHubRpcClient(process.env.FARCASTER_HUB || "");
 import { buildFrameMetaHTML } from "@/lib/frameUtils";
 import { db } from "@/lib/dependencies";
 
+const headers = {
+  "Content-Type": "text/html",
+};
+
 async function getResponse(req: NextRequest): Promise<NextResponse> {
   let validatedMessage: Message | undefined = undefined;
   let fid = 0;
@@ -24,6 +28,29 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     console.log("validatedMessage", validatedMessage);
 
     fid = validatedMessage?.data?.fid || 0;
+
+    // Check if the FID exists in the database
+    const characterState = await db.collection("characters").findOne({ fid });
+    if (
+      characterState &&
+      characterState.buttons &&
+      characterState.prevPrompt &&
+      characterState.class &&
+      characterState.level
+    ) {
+      // Restart them from the last prompt
+      const character = `Level ${characterState.level} • ${characterState.class}`;
+
+      return new NextResponse(
+        buildFrameMetaHTML({
+          title: "Continue your adventure",
+          image: `api/prompt-image?text=${characterState.prevPrompt}&character=${character}`,
+          post_url: "api/prompt",
+          buttons: characterState.buttons,
+        }),
+        { headers }
+      );
+    }
   } catch (err) {
     console.error(err);
     throw new Error("Invalid frame data");
@@ -38,10 +65,6 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     { $set: { fid, buttons: characterClasses } },
     { upsert: true }
   );
-
-  const headers = {
-    "Content-Type": "text/html",
-  };
 
   return new NextResponse(
     buildFrameMetaHTML({
