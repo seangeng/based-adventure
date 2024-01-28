@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-export const runtime = "edge"; // Serve on the edge runtime for faster response times
+export const runtime = "edge";
 
 export async function GET(request: Request) {
   // Make sure the font exists in the specified path:
@@ -8,8 +8,8 @@ export async function GET(request: Request) {
   ).then((res) => res.arrayBuffer());
 
   const { searchParams } = new URL(request.url);
-  const hasFid = searchParams.has("fid");
-  const fid = hasFid ? searchParams.get("fid") : "No FID";
+  const hasText = searchParams.has("text");
+  const text = hasText ? searchParams.get("text") : "No text...";
 
   return new ImageResponse(
     (
@@ -36,8 +36,7 @@ export async function GET(request: Request) {
             gap: 0,
           }}
         >
-          <p>{`👋🏼 Welcome, ${fid}!`}</p>
-          <p>Begin by choosing a character class.</p>
+          <p>{text}</p>
         </div>
         <div
           style={{

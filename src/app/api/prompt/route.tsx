@@ -34,10 +34,10 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
 
   return new NextResponse(
     buildFrameMetaHTML({
-      title: "Choose your character",
-      image: `api/spawn-image?fid=${fid}`,
+      title: "Next Screen",
+      image: `api/prompt-image?text=Hello`,
       post_url: "api/prompt",
-      buttons: ["🧙 Mage", "⚔️ Paladin", "🗡️ Rogue", "⛪ Cleric"],
+      buttons: ["Next", "Option B"],
     }),
     { headers }
   );
