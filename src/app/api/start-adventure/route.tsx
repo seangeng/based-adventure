@@ -5,7 +5,7 @@ import { buildFrameMetaHTML } from "@/lib/frameUtils";
 import { db, openai, parseJSON } from "@/lib/dependencies";
 const modelId = "gpt-3.5-turbo";
 
-// This is the general route that the user will see after they select a character class from /api/start-adventure
+// This is the route that the user will be redirected to after they select a character class from /api/spawn
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
   let validatedMessage: Message | undefined = undefined;
@@ -34,36 +34,23 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     // Load the character state
     const characterState = await db.collection("characters").findOne({ fid });
     // Map the button action to the text
-    if (
-      characterState.class &&
-      characterState.level &&
-      characterState.buttons &&
-      characterState.prevPrompt
-    ) {
+    if (characterState) {
       const buttonValue = characterState.buttons[buttonIndex];
 
       const headers = {
         "Content-Type": "text/html",
       };
 
-      const character = `Level ${characterState.level} • ${characterState.class}`;
-      const prevPrompt = characterState.prevPrompt;
-
-      const prompt = `The user is a ${character} continuing their adventure.
-
-When given the prompt: ${prevPrompt}
-The user has chosen: ${buttonValue}
-    
-Write a follow up prompt to continue the adventure (up to 100 characters), and present the user with and present the user with either 2 or 4 action options.
+      const prompt = `The user is a ${buttonValue} starting their first adventure.
+      
+Write a character narration prompt (up to 100 characters), and present the user with either 2 or 4 action options to continue the story.
 Action options should be either emoji(s) or short button text (up to 12 characters)
-Return a new description of the character, reflective of their current state based on the choices so far.
+You can present either 2 or 4 action options to the user.
 
-Return only a JSON response like so: 
-${JSON.stringify({
-  prompt: "...",
-  buttons: ["...", "..."],
-  newCharacterLevel: characterState.level,
-})}`;
+Return only a JSON response like so: ${JSON.stringify({
+        prompt: "...",
+        buttons: ["...", "..."],
+      })}`;
 
       const completion = await openai.chat.completions.create({
         model: modelId,
@@ -99,8 +86,6 @@ ${JSON.stringify({
         throw new Error("Invalid buttons");
       }
 
-      const newCharacterLevel = json.newCharacterLevel || characterState.level;
-
       // Update the character state
       db.collection("characters").updateOne(
         { fid },
@@ -110,12 +95,14 @@ ${JSON.stringify({
             prevPrompt: promptText,
             buttons,
             class: buttonValue,
-            level: newCharacterLevel,
+            level: 1,
           },
           $inc: { turns: 1 },
         },
         { upsert: true }
       );
+
+      const character = `Level 1 • ${buttonValue}`;
 
       return new NextResponse(
         buildFrameMetaHTML({

@@ -11,6 +11,9 @@ export async function GET(request: Request) {
   const hasText = searchParams.has("text");
   const text = hasText ? searchParams.get("text") : "No text...";
 
+  const hasCharacter = searchParams.has("character");
+  const character = hasCharacter ? searchParams.get("character") : "";
+
   return new ImageResponse(
     (
       <div
@@ -37,6 +40,18 @@ export async function GET(request: Request) {
           }}
         >
           <p>{text}</p>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            top: 20,
+            right: 30,
+            fontSize: 24,
+            color: "#3773F5",
+          }}
+        >
+          {character}
         </div>
         <div
           style={{
