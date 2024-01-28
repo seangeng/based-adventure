@@ -57,6 +57,7 @@ The user has chosen: ${buttonValue}
 Write a follow up prompt to continue the adventure (up to 100 characters), and present the user with and present the user with either 2 or 4 action options.
 Action options should be either emoji(s) or short button text (up to 12 characters)
 Return a new description of the character, reflective of their current state based on the choices so far.
+Optionally, you can return a new character level, which will be used to update the character state.
 
 Return only a JSON response like so: 
 ${JSON.stringify({
