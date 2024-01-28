@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
 const client = getSSLHubRpcClient(process.env.FARCASTER_HUB || "");
 import { buildFrameMetaHTML } from "@/lib/frameUtils";
-import { db } from "@/lib/dependencies";
+import { db, openai, parseJSON } from "@/lib/dependencies";
+
+const modelId = "gpt-3.5-turbo";
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
   let validatedMessage: Message | undefined = undefined;
@@ -38,12 +40,61 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
         "Content-Type": "text/html",
       };
 
+      const prompt = `The user is a ${buttonValue} starting their first adventure.
+Write a character narration prompt (up to 100 characters), and present the user with either 2 or 4 action options to continue the story.
+Action options should be either emoji(s) or short button text (up to 14 characters)
+Return only a JSON response like so: ${JSON.stringify({
+        prompt: "...",
+        buttons: ["...", "..."],
+      })}`;
+
+      const completion = await openai.chat.completions.create({
+        model: modelId,
+        temperature: 0.5,
+        messages: [
+          {
+            role: "system",
+            content: `You are the narrator in a choose your own adventure text based game called Base Quest.`,
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      });
+
+      const json = parseJSON(completion.choices[0].message.content ?? "");
+      const promptText = json.prompt;
+      const buttons = json.buttons;
+      // Ensure buttons are an array of between 1 and 4 strings
+      const buttonsArray = Array.isArray(buttons) ? buttons : [buttons];
+      const buttonsArrayLength = buttonsArray.length;
+      const buttonsArrayLengthValid =
+        buttonsArrayLength > 0 && buttonsArrayLength <= 4;
+      const buttonsArrayStrings = buttonsArray.filter(
+        (b) => typeof b === "string"
+      );
+
+      if (
+        !buttonsArrayLengthValid ||
+        buttonsArrayStrings.length !== buttonsArrayLength
+      ) {
+        throw new Error("Invalid buttons");
+      }
+
+      // Update the character state
+      db.collection("characters").updateOne(
+        { fid },
+        { $set: { fid, promptText, buttons }, $inc: { turns: 1 } },
+        { upsert: true }
+      );
+
       return new NextResponse(
         buildFrameMetaHTML({
           title: "Next Screen",
-          image: `api/prompt-image?text=${buttonValue}`,
+          image: `api/prompt-image?text=${promptText}`,
           post_url: "api/prompt",
-          buttons: ["Next", "Option B"],
+          buttons: buttons,
         }),
         { headers }
       );

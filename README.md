@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is an experimental Farcaster frame app for an AI text based adventure powered by the Base L2.
 
-## Getting Started
+How it works:
 
-First, run the development server:
+- Start by choosing a class (wizard, paladin, barbarian, monk)
+- Present the classes as og:buttons
+- Retrieve the FID from the first selection, create a state in MongoDB for the user
+- Prompt AI
+  - system: You are the narrator in a choose your own adventure text based game.
+  - The user is a {class} starting their first adventure.
+  - Write a character narration prompt (up to 100 characters), and present the user with either 2 or 4 action options to continue the story.
+  - Action options should be either emoji(s) or short button text (up to 14 characters)
+  - Return a JSON response like so: { }
+- Present options as next frame og:buttons
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+ACTION TAKEN:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Increment turns
+- Update state
+- Prompt AI
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+  - system: You are the narrator in a choose your own adventure text based game.
+  - The user is a {class} on their first adventure.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+  - When given the prompt: {prevPrompt}
+  - The user has chosen: {action}
 
-## Learn More
+  - Write a follow up prompt to continue the adventure (up to 100 characters), and present the user with and present the user with either 2 or 4 action options.
+  - Action options should be either emoji(s) or short button text (up to 14 characters)
+  - Return a new description of the character, reflective of their current state based on the choices so far.
+  - Return a JSON response like so: { }
 
-To learn more about Next.js, take a look at the following resources:
+- Update state
+- Present options as next frame og:buttons
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+ACTION TAKEN:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Increment turns
+- Update state
+- Prompt AI
 
-## Deploy on Vercel
+  - system: You are the narrator in a choose your own adventure text based game.
+  - The user is a {class} on their first adventure.
+  - User character's state: {state}
+  - Previous decisions: []
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+  - When given the prompt: {prevPrompt}
+  - The user has chosen: {action}
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+  - Write a follow up prompt to continue the adventure (up to 100 characters), and present the user with and present the user with either 2 or 4 action options.
+  - Action options should be either emoji(s) or short button text (up to 14 characters)
+  - Return an updated description of the character, reflective of their current state based on the choices so far.
+  - Return a JSON response like so: { }
+
+- Update state
+- Present options as next frame og:buttons
+
+... and so on
