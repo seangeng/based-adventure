@@ -32,7 +32,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   return new NextResponse(
     buildFrameMetaHTML({
       title: "Choose your character",
-      image: "api/spawn-image?fid=" + fid,
+      image: `api/spawn-image?fid=${fid}`,
       post_url: "api/prompt",
       buttons: ["Hello"],
     }),
