@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
 const client = getSSLHubRpcClient(process.env.FARCASTER_HUB || "");
 import { buildFrameMetaHTML } from "@/lib/frameUtils";
+import { db } from "@/lib/dependencies";
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
   let validatedMessage: Message | undefined = undefined;
@@ -28,6 +29,16 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     throw new Error("Invalid frame data");
   }
 
+  // Character creation
+  const characterClasses = ["🧙 Mage", "⚔️ Paladin", "🗡️ Rogue", "⛪ Cleric"];
+
+  // Initalize a new state for this FID
+  db.collection("characters").updateOne(
+    { fid },
+    { $set: { fid, buttons: characterClasses } },
+    { upsert: true }
+  );
+
   const headers = {
     "Content-Type": "text/html",
   };
@@ -37,7 +48,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       title: "Choose your character",
       image: `api/spawn-image?fid=${fid}`,
       post_url: "api/prompt",
-      buttons: ["🧙 Mage", "⚔️ Paladin", "🗡️ Rogue", "⛪ Cleric"],
+      buttons: characterClasses,
     }),
     { headers }
   );
