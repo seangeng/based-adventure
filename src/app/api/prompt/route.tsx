@@ -106,10 +106,8 @@ ${JSON.stringify({
         { fid },
         {
           $set: {
-            fid,
             prevPrompt: promptText,
             buttons,
-            class: buttonValue,
             level: newCharacterLevel,
           },
           $inc: { turns: 1 },

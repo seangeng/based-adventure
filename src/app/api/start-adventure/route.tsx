@@ -91,7 +91,6 @@ Return only a JSON response like so: ${JSON.stringify({
         { fid },
         {
           $set: {
-            fid,
             prevPrompt: promptText,
             buttons,
             class: characterClass,
