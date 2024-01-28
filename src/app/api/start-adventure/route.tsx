@@ -25,7 +25,10 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     }
 
     const buttonIndex =
-      body?.trustedData?.buttonIndex || body?.untrustedData.buttonIndex || 0;
+      body?.trustedData?.buttonIndex - 1 ||
+      body?.untrustedData.buttonIndex - 1 ||
+      0;
+    // Button index is 1-indexed, but we want it to be 0-indexed
 
     console.log("validatedMessage", validatedMessage);
 
