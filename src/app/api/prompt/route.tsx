@@ -38,10 +38,10 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     const characterState = await db.collection("characters").findOne({ fid });
     // Map the button action to the text
     if (
-      characterState.class &&
-      characterState.level &&
-      characterState.buttons &&
-      characterState.prevPrompt
+      characterState?.class &&
+      characterState?.level &&
+      characterState?.buttons &&
+      characterState?.prevPrompt
     ) {
       const buttonValue = characterState.buttons[buttonIndex];
 

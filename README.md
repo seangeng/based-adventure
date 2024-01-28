@@ -1,4 +1,14 @@
 This is an experimental Farcaster frame app for an AI text based adventure powered by the Base L2.
+Base Quest is still a WIP & subject to change.
+
+Todo:
+
+- Issue Character NFTs on Base & save state to them
+- Leaderboard
+- Option to continue vs start new game
+- Character attributes
+- $EXP
+- Multi-player quests
 
 How it works:
 

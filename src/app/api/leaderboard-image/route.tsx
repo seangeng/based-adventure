@@ -1,5 +1,5 @@
-export const runtime = "edge"; // Serve on the edge runtime for faster response times
 import { ImageResponse } from "next/og";
+export const runtime = "edge";
 import { BaseQuestLogo } from "@/lib/gameAssets";
 
 export async function GET(request: Request) {
@@ -9,8 +9,9 @@ export async function GET(request: Request) {
   ).then((res) => res.arrayBuffer());
 
   const { searchParams } = new URL(request.url);
-  const hasFid = searchParams.has("fid");
-  const fid = hasFid ? searchParams.get("fid") : "No FID";
+  // Get the data from the query string
+  const data = searchParams.get("data");
+  const leaderboardData = JSON.parse(data || "[]");
 
   return new ImageResponse(
     (
@@ -37,9 +38,27 @@ export async function GET(request: Request) {
             gap: 0,
           }}
         >
-          <p>{`👋🏼 Welcome, ${fid}!`}</p>
-          <p>Begin by choosing a character class.</p>
+          {leaderboardData.map((character: any, index: number) => {
+            return (
+              <p key={index}>
+                {character.class} • Level {character.value}
+              </p>
+            );
+          })}
         </div>
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            top: 20,
+            right: 30,
+            fontSize: 24,
+            color: "#3773F5",
+          }}
+        >
+          You are rank $1
+        </div>
+
         <BaseQuestLogo />
       </div>
     ),

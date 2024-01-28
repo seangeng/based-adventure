@@ -1,5 +1,5 @@
-const { MongoClient } = require("mongodb");
-export const mongoClient = new MongoClient(process.env.MONGODB_URI);
+import { MongoClient } from "mongodb";
+export const mongoClient = new MongoClient(process.env.MONGODB_URI as string);
 export const db = mongoClient.db("basequest");
 
 import OpenAI from "openai";

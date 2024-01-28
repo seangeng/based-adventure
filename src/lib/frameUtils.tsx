@@ -1,3 +1,7 @@
+import { NextRequest } from "next/server";
+import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
+const client = getSSLHubRpcClient(process.env.FARCASTER_HUB || "");
+
 export function buildFrameMetaHTML({
   title,
   image,
@@ -32,4 +36,32 @@ export function buildFrameMetaHTML({
             <p>${title}</p>
         </body>
         </html>`;
+}
+
+export async function getFarcasterId(req: NextRequest): Promise<number> {
+  let validatedMessage: Message | undefined = undefined;
+  let fid = 0;
+  try {
+    // Retrieve & validate the frame data from the request body
+    const body = await req.json();
+    if (body) {
+      console.log("body", body);
+
+      const frameMessage = Message.decode(
+        Buffer.from(body?.trustedData?.messageBytes || "", "hex")
+      );
+      const result = await client.validateMessage(frameMessage);
+      if (result.isOk() && result.value.valid && result.value.message) {
+        validatedMessage = result.value.message;
+      }
+
+      console.log("validatedMessage", validatedMessage);
+
+      return validatedMessage?.data?.fid as number;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+
+  return fid;
 }
