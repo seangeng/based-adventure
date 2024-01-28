@@ -35,13 +35,13 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     const characterState = await db.collection("characters").findOne({ fid });
     // Map the button action to the text
     if (characterState) {
-      const buttonValue = characterState.buttons[buttonIndex];
+      const characterClass = characterState.buttons[buttonIndex];
 
       const headers = {
         "Content-Type": "text/html",
       };
 
-      const prompt = `The user is a ${buttonValue} starting their first adventure.
+      const prompt = `The user is a ${characterClass} starting their first adventure.
       
 Write a character narration prompt (up to 100 characters), and present the user with either 2 or 4 action options to continue the story.
 Action options should be either emoji(s) or short button text (up to 12 characters)
@@ -94,7 +94,7 @@ Return only a JSON response like so: ${JSON.stringify({
             fid,
             prevPrompt: promptText,
             buttons,
-            class: buttonValue,
+            class: characterClass,
             level: 1,
           },
           $inc: { turns: 1 },
@@ -102,7 +102,7 @@ Return only a JSON response like so: ${JSON.stringify({
         { upsert: true }
       );
 
-      const character = `Level 1 • ${buttonValue}`;
+      const character = `Level 1 • ${characterClass}`;
 
       return new NextResponse(
         buildFrameMetaHTML({
