@@ -8,12 +8,12 @@ export default function StartScreen() {
         <meta property="og:title" content={title} />
         <meta
           property="og:image"
-          content={`${process.env.DOMAIN}/base-quest-start.jpg`}
+          content={`${process.env.DOMAIN}/base-quest-start-screen.jpg`}
         />
         <meta name="fc:frame" content="vNext" />
         <meta
           name="fc:frame:image"
-          content={`${process.env.DOMAIN}/base-quest-start.jpg`}
+          content={`${process.env.DOMAIN}/base-quest-start-screen.jpg`}
         />
         <meta
           name="fc:frame:post_url"
