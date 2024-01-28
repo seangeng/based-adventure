@@ -17,7 +17,7 @@ export default function StartScreen() {
         />
         <meta
           name="fc:frame:post_url"
-          content="https://eo6m4ikat6vrxtj.m.pipedream.net"
+          content={`https://${process.env.VERCEL_URL}/api/spawn`}
         />
         <meta name="fc:frame:button:1" content="Start your adventure" />
       </head>

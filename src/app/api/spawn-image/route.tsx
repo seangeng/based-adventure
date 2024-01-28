@@ -4,11 +4,15 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export async function GET() {
+export async function GET(request: Request) {
   // Make sure the font exists in the specified path:
   const fontData = await fetch(
     new URL("../../../../assets/Silkscreen-Regular.ttf", import.meta.url)
   ).then((res) => res.arrayBuffer());
+
+  const { searchParams } = new URL(request.url);
+  const hasFid = searchParams.has("fid");
+  const fid = hasFid ? searchParams.get("fid") : "No FID";
 
   return new ImageResponse(
     (
@@ -27,7 +31,7 @@ export async function GET() {
           fontFamily: '"Typewriter"',
         }}
       >
-        <span>{`👋 Hello adventurer, let's begin.`}</span>
+        <span>{`👋 Hello adventurer ${fid}, let's begin.`}</span>
         <div
           style={{
             display: "flex",
