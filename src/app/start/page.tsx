@@ -8,21 +8,21 @@ export default function StartScreen() {
         <meta property="og:title" content={title} />
         <meta
           property="og:image"
-          content={`https://${process.env.VERCEL_URL}/base-quest-start.jpg`}
+          content={`${process.env.DOMAIN}/base-quest-start.jpg`}
         />
         <meta name="fc:frame" content="vNext" />
         <meta
           name="fc:frame:image"
-          content={`https://${process.env.VERCEL_URL}/base-quest-start.jpg`}
+          content={`${process.env.DOMAIN}/base-quest-start.jpg`}
         />
         <meta
           name="fc:frame:post_url"
-          content={`https://${process.env.VERCEL_URL}/api/spawn`}
+          content={`${process.env.DOMAIN}/api/spawn`}
         />
         <meta name="fc:frame:button:1" content="Start your adventure" />
       </head>
-      <body>
-        <p>{title}</p>
+      <body className="flex items-center justify-center h-screen w-screen">
+        <img src={`/base-quest-start.jpg`} />
       </body>
     </html>
   );

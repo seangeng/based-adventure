@@ -29,10 +29,10 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
         <head>
             <title>Mint</title>
             <meta property="og:title" content="Tested!">
-            <meta property="og:image" content="https://${process.env.VERCEL_URL}/api/spawn-image?fid=${fid}">
+            <meta property="og:image" content="${process.env.DOMAIN}/api/spawn-image?fid=${fid}">
             <meta name="fc:frame" content="vNext">
-            <meta name="fc:frame:image" content="https://${process.env.VERCEL_URL}/api/spawn-image?fid=${fid}">
-            <meta name="fc:frame:post_url" content="https://${process.env.VERCEL_URL}/api/prompt">
+            <meta name="fc:frame:image" content="${process.env.DOMAIN}/api/spawn-image?fid=${fid}">
+            <meta name="fc:frame:post_url" content="${process.env.DOMAIN}/api/prompt">
             <meta name="fc:frame:button:1" content="Hello">
         </head>
         <body>
