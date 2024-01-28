@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@coinbase/onchainkit": "^0.1.5",
     "@farcaster/hub-nodejs": "^0.10.21",
     "@vercel/og": "^0.6.2",
     "mongodb": "^6.3.0",
