@@ -53,7 +53,7 @@ ${JSON.stringify({
 
       const completion = await openai.chat.completions.create({
         model: modelId,
-        temperature: 0.5,
+        temperature: 0.7,
         messages: [
           {
             role: "system",
@@ -96,7 +96,8 @@ ${JSON.stringify({
         newHealth = 100;
       }
       // Calculate the new level
-      const characterLevel = calculateLevel(characterState.exp + expChange);
+      const newCharacterExp = characterState.exp + expChange;
+      const characterLevel = calculateLevel(newCharacterExp);
 
       // Update the character state
       db.collection("characters").updateOne(
@@ -114,10 +115,19 @@ ${JSON.stringify({
         { upsert: true }
       );
 
+      // Build the image URL
+      let params = `text=${promptText}&character=${character}&health=${newHealth}&exp=${newCharacterExp}`;
+      if (expChange > 0) {
+        params += `&expChange=${expChange}`;
+      }
+      if (json.health && json.health !== 0) {
+        params += `&healthChange=${json.health}`;
+      }
+
       return new NextResponse(
         buildFrameMetaHTML({
           title: "Next Screen",
-          image: `api/prompt-image?text=${promptText}&character=${character}`,
+          image: `api/prompt-image?${params}`,
           post_url: "api/prompt",
           buttons: buttons,
         }),

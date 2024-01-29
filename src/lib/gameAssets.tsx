@@ -11,6 +11,26 @@ export function calculateLevel(exp: number): number {
   return level + 1;
 }
 
+export function calculateExpLevels(exp: number): {
+  expForNextLevel: number;
+  expForPrevLevel: number;
+} {
+  let requiredExpForNextLevel = 100;
+  let cumulativeExp = 0; // Total experience required to reach the current level
+  let expForPrevLevel = 0; // Experience required to reach the previous level
+
+  while (exp >= cumulativeExp + requiredExpForNextLevel) {
+    cumulativeExp += requiredExpForNextLevel;
+    expForPrevLevel = cumulativeExp;
+    requiredExpForNextLevel *= 1.25; // Increase the requirement for the next level
+  }
+
+  return {
+    expForNextLevel: cumulativeExp + requiredExpForNextLevel,
+    expForPrevLevel: expForPrevLevel,
+  };
+}
+
 // Logo for the game
 export const BaseQuestLogo: React.FC = () => {
   return (
