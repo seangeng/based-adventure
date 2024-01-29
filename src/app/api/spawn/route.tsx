@@ -12,24 +12,25 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   // Get the FID from the request body
   const frameData = await getFrameData(req);
 
-  if (!frameData) {
-    throw new Error("Missing frame data");
+  const fid = frameData?.fid || 0;
+  let user = null;
+  if (fid > 0) {
+    // Fetch user data from FID
+    const users = await getFarcasterUsersFromFID(fid);
+    user = users[fid];
   }
-
-  // Fetch user data from FID
-  const users = await getFarcasterUsersFromFID(frameData.fid);
 
   // Character creation
   const characterClasses = ["🧙 Mage", "⚔️ Paladin", "🗡️ Rogue", "⛪ Cleric"];
 
   // Initalize a new state for this FID
   db.collection("characters").updateOne(
-    { fid: frameData.fid },
+    { fid },
     {
       $set: {
         // Init default states
         buttons: characterClasses,
-        user: users[frameData.fid],
+        user: user,
         exp: 0,
         health: 100,
         level: 1,
@@ -45,9 +46,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   return new NextResponse(
     buildFrameMetaHTML({
       title: "Choose your character",
-      image: `api/spawn-image?fid=${frameData.fid}&username=${
-        users[frameData.fid]?.username
-      }`,
+      image: `api/spawn-image?fid=${fid}&username=${user?.username}`,
       post_url: "api/start-adventure",
       buttons: characterClasses,
     }),
