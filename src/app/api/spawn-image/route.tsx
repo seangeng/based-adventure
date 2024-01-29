@@ -9,8 +9,8 @@ export async function GET(request: Request) {
   ).then((res) => res.arrayBuffer());
 
   const { searchParams } = new URL(request.url);
-  const hasFid = searchParams.has("fid");
-  const fid = hasFid ? searchParams.get("fid") : "No FID";
+  const username =
+    searchParams.get("username") ?? searchParams.get("fid") ?? "???";
 
   return new ImageResponse(
     (
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
             gap: 0,
           }}
         >
-          <p>{`👋🏼 Welcome, ${fid}!`}</p>
+          <p>{`👋🏼 Welcome, ${username}!`}</p>
           <p>Begin by choosing a character class.</p>
         </div>
         <BaseQuestLogo />

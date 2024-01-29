@@ -1,38 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
-const client = getSSLHubRpcClient(process.env.FARCASTER_HUB || "");
-import { buildFrameMetaHTML } from "@/lib/frameUtils";
+import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
 import { db, openai, parseJSON } from "@/lib/dependencies";
 const modelId = "gpt-3.5-turbo";
 
 // This is the general route that the user will see after they select a character class from /api/start-adventure
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
-  let validatedMessage: Message | undefined = undefined;
-  let fid = 0;
-  try {
-    // Retrieve & validate the frame data from the request body
-    const body = await req.json();
+  const frameData = await getFrameData(req);
 
-    console.log("body", body);
-
-    const frameMessage = Message.decode(
-      Buffer.from(body?.trustedData?.messageBytes || "", "hex")
-    );
-    const result = await client.validateMessage(frameMessage);
-    if (result.isOk() && result.value.valid && result.value.message) {
-      validatedMessage = result.value.message;
-    }
-
-    const buttonIndex =
-      body?.trustedData?.buttonIndex - 1 ||
-      body?.untrustedData.buttonIndex - 1 ||
-      0;
-    // Button index is 1-indexed, but we want it to be 0-indexed
-
-    console.log("validatedMessage", validatedMessage);
-
-    fid = validatedMessage?.data?.fid || 0;
+  if (frameData) {
+    const fid = frameData.fid;
+    const buttonIndex = frameData.buttonIndex;
 
     // Load the character state
     const characterState = await db.collection("characters").findOne({ fid });
@@ -129,9 +107,6 @@ ${JSON.stringify({
         { headers }
       );
     }
-  } catch (err) {
-    console.error(err);
-    throw new Error("Invalid frame data");
   }
 
   return new NextResponse(null, { status: 400 });

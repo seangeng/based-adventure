@@ -4,7 +4,7 @@ Base Quest is still a WIP & subject to change.
 Todo:
 
 - Issue Character NFTs on Base & save state to them
-- Leaderboard
+- Leaderboard (testing)
 - Option to continue vs start new game
 - Character attributes
 - $EXP

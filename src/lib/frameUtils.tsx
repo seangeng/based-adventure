@@ -38,6 +38,46 @@ export function buildFrameMetaHTML({
         </html>`;
 }
 
+interface frameData {
+  fid: number;
+  buttonIndex: number;
+}
+
+export async function getFrameData(
+  req: NextRequest
+): Promise<frameData | undefined> {
+  let validatedMessage: Message | undefined = undefined;
+  let fid = 0;
+  try {
+    // Retrieve & validate the frame data from the request body
+    const body = await req.json();
+    if (body) {
+      const frameMessage = Message.decode(
+        Buffer.from(body?.trustedData?.messageBytes || "", "hex")
+      );
+      const result = await client.validateMessage(frameMessage);
+      if (result.isOk() && result.value.valid && result.value.message) {
+        validatedMessage = result.value.message;
+      }
+
+      const buttonIndex =
+        body?.trustedData?.buttonIndex - 1 ||
+        body?.untrustedData.buttonIndex - 1 ||
+        0;
+      // Button index is 1-indexed, but we want it to be 0-indexed
+
+      return {
+        fid: validatedMessage?.data?.fid,
+        buttonIndex: buttonIndex,
+      } as frameData;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+
+  return;
+}
+
 export async function getFarcasterId(req: NextRequest): Promise<number> {
   let validatedMessage: Message | undefined = undefined;
   let fid = 0;

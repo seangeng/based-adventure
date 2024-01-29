@@ -8,24 +8,34 @@ export async function GET(request: Request) {
     new URL("../../../../assets/Silkscreen-Regular.ttf", import.meta.url)
   ).then((res) => res.arrayBuffer());
 
+  console.log("rendering leaderboard image");
+
   const { searchParams } = new URL(request.url);
   // Get the data from the query string
   const data = searchParams.get("data");
-  const leaderboardData = JSON.parse(data || "[]");
+  const leaderboardData = JSON.parse(data || "[]") as {
+    c: string;
+    l: number;
+    i: string;
+  }[];
+
+  // Get the user's rank
+  const userRankParam = searchParams.get("uRank");
+  const userRank = userRankParam ? parseInt(userRankParam) : 0;
 
   return new ImageResponse(
     (
       <div
         style={{
           display: "flex",
-          fontSize: 42,
+          fontSize: 36,
           color: "white",
           background: "black",
           width: "100%",
           height: "100%",
-          padding: "50px 100px",
-          textAlign: "center",
-          justifyContent: "center",
+          padding: "80px 120px 50px 120px",
+          textAlign: "left",
+          justifyContent: "flex-start",
           alignItems: "center",
           fontFamily: '"Typewriter"',
         }}
@@ -33,31 +43,51 @@ export async function GET(request: Request) {
         <div
           style={{
             display: "flex",
-            flexFlow: "row wrap",
-            justifyContent: "center",
-            gap: 0,
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "flex-start",
           }}
         >
           {leaderboardData.map((character: any, index: number) => {
             return (
-              <p key={index}>
-                {character.class} • Level {character.value}
-              </p>
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  flex: "0 0 100%",
+                  textAlign: "left",
+                  gap: 20,
+                }}
+              >
+                #{index + 1}:{" "}
+                <span
+                  style={{
+                    color: "#3773F5",
+                  }}
+                >
+                  {character.i}
+                </span>{" "}
+                <span>
+                  Level {character.l} - {character.c}
+                </span>
+              </div>
             );
           })}
         </div>
-        <div
-          style={{
-            display: "flex",
-            position: "absolute",
-            top: 20,
-            right: 30,
-            fontSize: 24,
-            color: "#3773F5",
-          }}
-        >
-          You are rank $1
-        </div>
+        {userRank > 0 && (
+          <div
+            style={{
+              display: "flex",
+              position: "absolute",
+              top: 20,
+              right: 30,
+              fontSize: 24,
+              color: "#3773F5",
+            }}
+          >
+            You are rank #{userRank}
+          </div>
+        )}
 
         <BaseQuestLogo />
       </div>
