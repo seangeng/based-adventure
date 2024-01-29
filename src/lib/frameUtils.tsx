@@ -47,7 +47,6 @@ export async function getFrameData(
   req: NextRequest
 ): Promise<frameData | undefined> {
   let validatedMessage: Message | undefined = undefined;
-  let fid = 0;
   try {
     // Retrieve & validate the frame data from the request body
     const body = await req.json();
@@ -62,12 +61,12 @@ export async function getFrameData(
 
       const buttonIndex =
         body?.trustedData?.buttonIndex - 1 ||
-        body?.untrustedData.buttonIndex - 1 ||
+        body?.untrustedData.buttonIndex - 1 || // This is used for testing
         0;
       // Button index is 1-indexed, but we want it to be 0-indexed
 
       return {
-        fid: validatedMessage?.data?.fid,
+        fid: validatedMessage?.data?.fid ?? 0,
         buttonIndex: buttonIndex,
       } as frameData;
     }

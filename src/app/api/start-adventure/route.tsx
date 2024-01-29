@@ -10,12 +10,11 @@ const headers = {
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
   const frameData = await getFrameData(req);
+  const fid = frameData?.fid ?? 0;
 
-  if (frameData && frameData.fid > 0) {
+  if (frameData) {
     // Load the character state
-    const characterState = await db
-      .collection("characters")
-      .findOne({ fid: frameData.fid });
+    const characterState = await db.collection("characters").findOne({ fid });
     // Map the button action to the text
     if (characterState) {
       const characterClass = characterState.buttons[frameData.buttonIndex];
@@ -26,10 +25,11 @@ Write a character narration prompt (up to 100 characters), and present the user 
 Action options should be either emoji(s) or short button text (up to 12 characters)
 You can present either 2 or 4 action options to the user.
 
-Return only a JSON response like so: ${JSON.stringify({
-        prompt: "...",
-        buttons: ["...", "..."],
-      })}`;
+Return only a JSON response like: 
+${JSON.stringify({
+  prompt: "...",
+  buttons: ["...", "..."],
+})}`;
 
       const completion = await openai.chat.completions.create({
         model: modelId,
@@ -67,7 +67,7 @@ Return only a JSON response like so: ${JSON.stringify({
 
       // Update the character state
       db.collection("characters").updateOne(
-        { fid: frameData.fid },
+        { fid: fid },
         {
           $set: {
             prevPrompt: promptText,
@@ -94,7 +94,15 @@ Return only a JSON response like so: ${JSON.stringify({
     }
   }
 
-  return new NextResponse(null, { status: 400 });
+  return new NextResponse(
+    buildFrameMetaHTML({
+      title: "Continue your Base Quest",
+      image: `api/prompt-image?text=${`Oh no!  An unexpected error happened.  Reach out to @seangeng on Warpcast.`}`,
+      post_url: "api/menu?buttons=menu",
+      buttons: ["Back to Menu"],
+    }),
+    { headers }
+  );
 }
 
 export async function POST(req: NextRequest): Promise<Response> {

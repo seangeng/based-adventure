@@ -13,6 +13,7 @@
     "@farcaster/hub-nodejs": "^0.10.21",
     "@vercel/kv": "^1.0.1",
     "@vercel/og": "^0.6.2",
+    "inngest": "^3.12.0",
     "mongodb": "^6.3.0",
     "next": "14.1.0",
     "openai": "^4.26.0",
