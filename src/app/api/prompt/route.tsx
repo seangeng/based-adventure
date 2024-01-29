@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
 import { db, openai, parseJSON } from "@/lib/dependencies";
-const modelId = "gpt-3.5-turbo";
+import { calculateLevel } from "@/lib/gameAssets";
+import { modelId } from "@/lib/constants";
 
 // This is the general route that the user will see after they select a character class from /api/start-adventure
 
@@ -34,17 +35,20 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
 
 When given the prompt: ${prevPrompt}
 The user has chosen: ${buttonValue}
-    
-Write a follow up prompt to continue the adventure (up to 100 characters), and present the user with and present the user with either 2 or 4 action options.
-Action options should be either emoji(s) or short button text (up to 12 characters)
-Return a new description of the character, reflective of their current state based on the choices so far.
-Optionally, you can return a new character level, which will be used to update the character state.
+  
+Follow the instructions:
+- Write a follow up prompt to continue the adventure (up to 100 characters - emojis allowed)
+- Present the user with either 2 or 4 action buttons
+- Buttons should be either emoji(s) or short text (up to 12 characters)
+- Give experience points (exp) between 0 and 100.  Return 0 exp for unmeaningful actions.
+- Return change in health between -100 and 100.  Return 0 for unmeaningful actions.
 
-Return only a JSON response like so: 
+Return only a JSON response like: 
 ${JSON.stringify({
   prompt: "...",
   buttons: ["...", "..."],
-  newCharacterLevel: characterState.level,
+  exp: 0,
+  health: 0,
 })}`;
 
       const completion = await openai.chat.completions.create({
@@ -81,7 +85,18 @@ ${JSON.stringify({
         throw new Error("Invalid buttons");
       }
 
-      const newCharacterLevel = json.newCharacterLevel || characterState.level;
+      // Handle the exp and health changes
+      const expChange = Math.max(0, Math.min(json.exp || 0, 100));
+      let newHealth = characterState?.health
+        ? characterState?.health + json.health
+        : 100;
+      if (newHealth < 0) {
+        newHealth = 0;
+      } else if (newHealth > 100) {
+        newHealth = 100;
+      }
+      // Calculate the new level
+      const characterLevel = calculateLevel(characterState.exp + expChange);
 
       // Update the character state
       db.collection("characters").updateOne(
@@ -90,9 +105,11 @@ ${JSON.stringify({
           $set: {
             prevPrompt: promptText,
             buttons,
-            level: newCharacterLevel,
+            health: newHealth,
+            lastAction: new Date(),
+            level: characterLevel,
           },
-          $inc: { turns: 1 },
+          $inc: { turns: 1, exp: expChange },
         },
         { upsert: true }
       );

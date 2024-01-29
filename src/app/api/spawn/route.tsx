@@ -25,7 +25,17 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   // Initalize a new state for this FID
   db.collection("characters").updateOne(
     { fid: frameData.fid },
-    { $set: { buttons: characterClasses, user: users[frameData.fid] } },
+    {
+      $set: {
+        // Init default states
+        buttons: characterClasses,
+        user: users[frameData.fid],
+        exp: 0,
+        health: 100,
+        level: 1,
+        lastAction: new Date(),
+      },
+    },
     { upsert: true }
   );
 

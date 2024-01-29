@@ -1,3 +1,17 @@
+export function calculateLevel(exp: number): number {
+  let level = 0;
+  let requiredExpForNextLevel = 100;
+
+  while (exp >= requiredExpForNextLevel) {
+    level++;
+    exp -= requiredExpForNextLevel; // Subtract the required exp for the current level
+    requiredExpForNextLevel *= 1.25; // Increase the requirement for the next level
+  }
+
+  return level + 1;
+}
+
+// Logo for the game
 export const BaseQuestLogo: React.FC = () => {
   return (
     <div

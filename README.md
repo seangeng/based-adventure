@@ -1,75 +1,67 @@
 # Base Quest
 
-This is an experimental Farcaster frame app for an AI text-based adventure powered by the Base L2. Base Quest is still a work in progress and subject to change.
+This is an experimental Farcaster frame app for an AI text-based adventure powered by the Base L2.
+Base Quest is still a work in progress and subject to change.
 
 ![Base Quest Splash Screen](https://raw.githubusercontent.com/seangeng/based-adventure/e2128d21bf099af021946a338635b8022c8f7563/public/base-quest-bg.jpg)
 
+# Want to play?
+
+Follow me on Farcaster for the latest game link: https://warpcast.com/seangeng
+
 ## Todo
 
-- Issue Character NFTs on Base & save state to them
 - Leaderboard (testing)
-- Option to continue vs start a new game
+- Option to continue vs start a new game (testing)
+- Issue Character NFTs on Base & save state to them
 - Character attributes
 - $EXP
+- Character profile links
 - Multi-player quests
 
 ## How it Works
 
 ![Technical Diagram](https://raw.githubusercontent.com/seangeng/based-adventure/e2128d21bf099af021946a338635b8022c8f7563/public/base-quest-flowchart.png)
 
+This high level diagram explains the frame states & how menu actions are managed generically.
+Buttons can be passed to the menu in the GET parameter, and map to the business logic - essentially acting as a router.
+
+Several awesome SDKs & frameworks are leveraged to accelerate developement:
+
+Coinbase OnChain Kit: For frame helpers & future onchain actions.
+
+- https://github.com/coinbase/onchainkit
+
+OpenAI: For chat completions & image generation.
+
+- https://openai.com
+
+Inngest: For executing background jobs (there is latency when generating images + certain onchain actions)
+
+- https://www.inngest.com/
+
+Vercel: For hosting, and easy programmatic OpenGraph image generation:
+
+- Check out `/src/app/api/prompt-image/route.tsx` as an example
+- https://vercel.com/docs/functions/edge-functions/og-image-generation/og-image-examples
+
 ### Basic AI Workflow
 
-1. Start by choosing a class (wizard, paladin, barbarian, monk)
-2. Present the classes as og:buttons
-3. Retrieve the FID from the first selection, create a state in MongoDB for the user
-4. Prompt AI
+Base Quest uses the OpenAI GPT 3.5 Turbo model to narrate & continue the storyline.
+That means each user's journey is completely unique!
+
+Check out the `/src/app/api/prompt/route.tsx` file to see how the AI prompt loop works:
+
+1. AI generates the prompt & button options
    - system: You are the narrator in a choose your own adventure text-based game.
    - The user is a {class} starting their first adventure.
    - Write a character narration prompt (up to 100 characters), and present the user with either 2 or 4 action options to continue the story.
    - Action options should be either emoji(s) or short button text (up to 14 characters)
    - Return a JSON response like so: { }
-5. Present options as next frame og:buttons
+2. Present options as next frame og:buttons
+3. Feed the previous prompt & user selected action to the next prompt screen
 
-### Action Taken
+### Want to build onchain?
 
-- Increment turns
-- Update state
-- Prompt AI
-
-  - system: You are the narrator in a choose your own adventure text based game.
-  - The user is a {class} on their first adventure.
-
-  - When given the prompt: {prevPrompt}
-  - The user has chosen: {action}
-
-  - Write a follow up prompt to continue the adventure (up to 100 characters), and present the user with and present the user with either 2 or 4 action options.
-  - Action options should be either emoji(s) or short button text (up to 14 characters)
-  - Return a new description of the character, reflective of their current state based on the choices so far.
-  - Return a JSON response like so: { }
-
-- Update state
-- Present options as next frame og:buttons
-
-ACTION TAKEN:
-
-- Increment turns
-- Update state
-- Prompt AI
-
-  - system: You are the narrator in a choose your own adventure text based game.
-  - The user is a {class} on their first adventure.
-  - User character's state: {state}
-  - Previous decisions: []
-
-  - When given the prompt: {prevPrompt}
-  - The user has chosen: {action}
-
-  - Write a follow up prompt to continue the adventure (up to 100 characters), and present the user with and present the user with either 2 or 4 action options.
-  - Action options should be either emoji(s) or short button text (up to 14 characters)
-  - Return an updated description of the character, reflective of their current state based on the choices so far.
-  - Return a JSON response like so: { }
-
-- Update state
-- Present options as next frame og:buttons
-
-... and so on
+The future is onchain. Does this interest you? Do you think you can do better?
+Coinbase hires the top 1% of developers - reach out to me for a possible referral: https://www.linkedin.com/in/seangeng/

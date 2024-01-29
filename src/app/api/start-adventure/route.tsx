@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
 import { db, openai, parseJSON } from "@/lib/dependencies";
-const modelId = "gpt-3.5-turbo";
+import { modelId } from "@/lib/constants";
 
 // This is the route that the user will be redirected to after they select a character class from /api/spawn
 const headers = {
@@ -73,7 +73,7 @@ Return only a JSON response like so: ${JSON.stringify({
             prevPrompt: promptText,
             buttons,
             class: characterClass,
-            level: 1,
+            lastAction: new Date(),
           },
           $inc: { turns: 1 },
         },
