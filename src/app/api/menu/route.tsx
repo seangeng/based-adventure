@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
 import { db } from "@/lib/dependencies";
 import { getFarcasterUsersFromFID } from "@/lib/farcasterUtils";
+import { buildPromptImageParams } from "@/lib/gameAssets";
 
 // This is the main menu router
 // Here we map the various in-game menu button actions to route you to the right screen
@@ -143,12 +144,20 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       characterState.level
     ) {
       // Restart them from the last prompt
-      const character = `Level ${characterState.level} • ${characterState.class}`;
+      const params = buildPromptImageParams(
+        {
+          class: characterState.class,
+          exp: characterState.exp ?? 0,
+          health: characterState.health ?? 100,
+          image: characterState.nft?.thumbnail ?? undefined,
+        },
+        characterState.prevPrompt
+      );
 
       return new NextResponse(
         buildFrameMetaHTML({
           title: "Continue your adventure",
-          image: `api/prompt-image?text=${characterState.prevPrompt}&character=${character}`,
+          image: `api/prompt-image?${params}`,
           post_url: "api/prompt",
           buttons: characterState.buttons,
         }),

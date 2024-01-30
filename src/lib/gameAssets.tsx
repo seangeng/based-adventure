@@ -31,6 +31,73 @@ export function calculateExpLevels(exp: number): {
   };
 }
 
+export function calculateCharacterState(character: {
+  class: string;
+  exp: number;
+  health: number;
+  expChange?: number;
+  healthChange?: number;
+}) {
+  // Handle the exp and health changes
+  let newHealth = character.health;
+  if (character.healthChange) {
+    newHealth += character.healthChange;
+  }
+  // Force health to be between 0 and 100
+  if (newHealth < 0) {
+    newHealth = 0;
+  } else if (newHealth > 100) {
+    newHealth = 100;
+  }
+
+  // Calculate the new level
+  const expChange = Math.max(0, Math.min(character.expChange || 0, 100)) ?? 0;
+  const newCharacterExp = character.exp + expChange;
+  const characterLevel = calculateLevel(newCharacterExp);
+
+  const characterDescription = `Level ${characterLevel} • ${character.class}`;
+
+  return {
+    description: characterDescription,
+    health: newHealth,
+    exp: newCharacterExp,
+    level: characterLevel,
+    healthState: newHealth === 0 ? "dead" : "alive",
+  };
+}
+
+export function buildPromptImageParams(
+  character: {
+    class: string;
+    exp: number;
+    health: number;
+    expChange?: number;
+    healthChange?: number;
+    image?: string;
+  },
+  prompt: string
+) {
+  const { description, health, exp } = calculateCharacterState(character);
+
+  // Calculate the new level
+  const expChange = Math.max(0, Math.min(character.expChange || 0, 100)) ?? 0;
+
+  // Build the params
+  let params = `text=${prompt}&character=${description}&health=${health}&exp=${exp}`;
+  if (expChange > 0) {
+    params += `&expChange=${expChange}`;
+  }
+  if (character.healthChange && character.healthChange !== 0) {
+    params += `&healthChange=${character.healthChange}`;
+  }
+
+  if (character.image) {
+    params += `&image=${encodeURIComponent(character.image)}`;
+  }
+
+  return params;
+}
+
 // Logo for the game
 export const BaseQuestLogo: React.FC = () => {
   return (

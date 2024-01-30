@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
 import { db, openai, parseJSON } from "@/lib/dependencies";
-import { calculateLevel } from "@/lib/gameAssets";
+import {
+  buildPromptImageParams,
+  calculateCharacterState,
+} from "@/lib/gameAssets";
 import { modelId } from "@/lib/constants";
 
 // This is the general route that the user will see after they select a character class from /api/start-adventure
+const headers = {
+  "Content-Type": "text/html",
+};
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
   const frameData = await getFrameData(req);
@@ -22,16 +28,40 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       characterState?.buttons &&
       characterState?.prevPrompt
     ) {
+      // Check for any notifications
+      if (characterState.notification) {
+        // Build the image URL
+        const params = `text=${characterState.notification.message}${
+          characterState.notification.image
+            ? "&image=" + encodeURIComponent(characterState.notification.image)
+            : ""
+        }`;
+
+        // Clear the notification
+        db.collection("characters").updateOne(
+          { fid },
+          { $unset: { notification: "" } }
+        );
+
+        // Show the notification screen
+        return new NextResponse(
+          buildFrameMetaHTML({
+            title: "Notification",
+            image: `api/notification-image?${params}`,
+            post_url: characterState.notification.post_url,
+            buttons: characterState.notification.buttons,
+          }),
+          { headers }
+        );
+      }
+
       const buttonValue = characterState.buttons[buttonIndex];
 
-      const headers = {
-        "Content-Type": "text/html",
-      };
-
       const character = `Level ${characterState.level} • ${characterState.class}`;
+      const currenHealth = characterState?.health ? characterState.health : 100;
       const prevPrompt = characterState.prevPrompt;
 
-      const prompt = `The user is a ${character} continuing their adventure.
+      const prompt = `The user is a ${character} (Health: ${currenHealth}/100) continuing their adventure.
 
 When given the prompt: ${prevPrompt}
 The user has chosen: ${buttonValue}
@@ -86,18 +116,13 @@ ${JSON.stringify({
       }
 
       // Handle the exp and health changes
-      const expChange = Math.max(0, Math.min(json.exp || 0, 100));
-      let newHealth = characterState?.health
-        ? characterState?.health + json.health
-        : 100;
-      if (newHealth < 0) {
-        newHealth = 0;
-      } else if (newHealth > 100) {
-        newHealth = 100;
-      }
-      // Calculate the new level
-      const newCharacterExp = characterState.exp + expChange;
-      const characterLevel = calculateLevel(newCharacterExp);
+      const { exp, health, level } = calculateCharacterState({
+        class: characterState.class,
+        exp: characterState.exp,
+        health: characterState.health,
+        expChange: json.exp,
+        healthChange: json.health,
+      });
 
       // Update the character state
       db.collection("characters").updateOne(
@@ -106,23 +131,28 @@ ${JSON.stringify({
           $set: {
             prevPrompt: promptText,
             buttons,
-            health: newHealth,
+            health: health,
+            exp: exp,
             lastAction: new Date(),
-            level: characterLevel,
+            level: level,
           },
-          $inc: { turns: 1, exp: expChange },
+          $inc: { turns: 1 },
         },
         { upsert: true }
       );
 
       // Build the image URL
-      let params = `text=${promptText}&character=${character}&health=${newHealth}&exp=${newCharacterExp}`;
-      if (expChange > 0) {
-        params += `&expChange=${expChange}`;
-      }
-      if (json.health && json.health !== 0) {
-        params += `&healthChange=${json.health}`;
-      }
+      const params = buildPromptImageParams(
+        {
+          class: characterState.class,
+          exp: exp,
+          health: health,
+          image: characterState.nft?.thumbnail ?? undefined,
+          expChange: json.exp,
+          healthChange: json.health,
+        },
+        promptText
+      );
 
       return new NextResponse(
         buildFrameMetaHTML({

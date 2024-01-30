@@ -9,6 +9,7 @@ import { default as axios } from "axios";
 import FormData from "form-data";
 import { put } from "@vercel/blob";
 import { JsonRpcProvider } from "ethers";
+import sharp from "sharp";
 
 async function mint(contractAddress: string, userWalletAddress: string) {
   const privateKey = process.env.WALLET_PRIVATE_KEY;
@@ -122,86 +123,113 @@ export const createCharacterNFT = inngest.createFunction(
 
     // Generate an AI image
     let image = null;
-    if (character?.nft?.image) {
+    let thumbnailImage = null;
+    if (character?.nft?.image && character?.nft?.thumbnail) {
       image = character.nft.image;
+      thumbnailImage = character.nft.thumbnail;
     } else {
-      image = await step.run("Generating NFT Avatar", async () => {
-        // If the user has a PFP, use that to generate the NFT
-        let pfpDescription = "";
-        if (character?.user?.pfp_url && character?.user?.pfp_url !== "") {
-          const response = await openai.chat.completions.create({
-            model: "gpt-4-vision-preview",
-            messages: [
-              {
-                role: "user",
-                content: [
-                  {
-                    type: "text",
-                    text: "Describe this picture in detail (up to 255 characters)",
-                  },
-                  {
-                    type: "image_url",
-                    image_url: {
-                      url: character.user.pfp_url,
+      const generateImage = await step.run(
+        "Generating NFT Avatar",
+        async () => {
+          // If the user has a PFP, use that to generate the NFT
+          let pfpDescription = "";
+          if (character?.user?.pfp_url && character?.user?.pfp_url !== "") {
+            const response = await openai.chat.completions.create({
+              model: "gpt-4-vision-preview",
+              messages: [
+                {
+                  role: "user",
+                  content: [
+                    {
+                      type: "text",
+                      text: "Describe this picture in detail (up to 255 characters)",
                     },
-                  },
-                ],
-              },
-            ],
-            max_tokens: 1000,
-            temperature: 0.5,
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: character.user.pfp_url,
+                      },
+                    },
+                  ],
+                },
+              ],
+              max_tokens: 1000,
+              temperature: 0.5,
+            });
+
+            if (
+              response.choices[0] &&
+              response.choices[0].finish_reason == "stop" &&
+              response.choices[0].message?.content
+            ) {
+              pfpDescription = response.choices[0].message.content;
+            }
+          }
+
+          // Generate a new image using Dall-E 3
+          const prompt = `An pixel art style ${character?.class} game character icon, ${pfpDescription}`;
+          const response = await openai.images.generate({
+            model: "dall-e-3",
+            prompt: prompt,
+            n: 1,
+            size: "1024x1024",
           });
 
-          if (
-            response.choices[0] &&
-            response.choices[0].finish_reason == "stop" &&
-            response.choices[0].message?.content
-          ) {
-            pfpDescription = response.choices[0].message.content;
+          if (!response.data[0]?.url) {
+            throw new Error("No image generated");
           }
+
+          // Get the image buffer
+          const imageResponse = await axios.get(response.data[0].url, {
+            responseType: "arraybuffer",
+          });
+          const imageBuffer = Buffer.from(imageResponse.data);
+
+          // Upload the image to Vercel
+          const { url } = await put(
+            `${event.data.fid}-${event.id}.png`,
+            imageBuffer,
+            {
+              contentType: "image/png",
+              access: "public",
+            }
+          );
+
+          // Resize the image to generate a thumbnail 256x256
+          // Use sharp to resize the image
+          const resizedImageBuffer = await sharp(imageBuffer)
+            .resize(256, 256)
+            .toBuffer();
+
+          // Upload the image to Vercel
+          const { url: thumbnailUrl } = await put(
+            `${event.data.fid}-${event.id}-thumbnail.png`,
+            resizedImageBuffer,
+            {
+              contentType: "image/png",
+              access: "public",
+            }
+          );
+
+          // Update the character with the pre-transformed image
+          await db.collection("characters").updateOne(
+            { fid: event.data.fid },
+            {
+              $set: {
+                "nft.image": url,
+                "nft.thumbnail": thumbnailUrl,
+              },
+            }
+          );
+
+          return {
+            url,
+            thumbnailUrl,
+          };
         }
-
-        // Generate a new image using Dall-E 3
-        const prompt = `An pixel art style ${character?.class} game character icon, ${pfpDescription}`;
-        const response = await openai.images.generate({
-          model: "dall-e-3",
-          prompt: prompt,
-          n: 1,
-          size: "1024x1024",
-        });
-
-        if (!response.data[0]?.url) {
-          throw new Error("No image generated");
-        }
-
-        // Get the image buffer
-        const imageResponse = await axios.get(response.data[0].url, {
-          responseType: "arraybuffer",
-        });
-        const imageBuffer = Buffer.from(imageResponse.data);
-
-        // Upload the image to Vercel
-        const { url } = await put(
-          `${event.data.fid}-${event.id}.png`,
-          imageBuffer,
-          {
-            contentType: "image/png",
-            access: "public",
-          }
-        );
-
-        // Update the character with the pre-transformed image
-        await db.collection("characters").updateOne(
-          { fid: event.data.fid },
-          {
-            $set: {
-              "nft.image": url,
-            },
-          }
-        );
-
-        return url;
-      });
+      );
+      image = generateImage.url;
+      thumbnailImage = generateImage.thumbnailUrl;
     }
 
     // Create the NFT
@@ -308,7 +336,8 @@ export const createCharacterNFT = inngest.createFunction(
             type: "nft",
             message: `Your character NFT has been minted to: ${userWalletAddress}`,
             txn: nftContractHash,
-            post_url: "api/prompt",
+            image: thumbnailImage,
+            post_url: "api/menu?buttons=continue",
             buttons: [`Got it!  TX: ` + nftContractHash],
           },
         },
@@ -321,5 +350,40 @@ export const createCharacterNFT = inngest.createFunction(
       contract: nftContract,
       contractHash: nftContractHash,
     };
+  }
+);
+
+export const backfillData = inngest.createFunction(
+  { id: "backfillData" },
+  { event: "backfillData" },
+  async ({ event, step }) => {
+    // Backfill the data
+    await step.run("Backfilling Data", async () => {
+      const characters = await db
+        .collection("characters")
+        .find({
+          user: { $exists: false },
+        })
+        .toArray();
+
+      for (const character of characters) {
+        if (!character?.user) {
+          const users = await getFarcasterUsersFromFID(character.fid);
+
+          if (users[character.fid]) {
+            // Update the character with the user data
+            db.collection("characters").updateOne(
+              { fid: character.fid },
+              {
+                $set: {
+                  user: users[character.fid],
+                },
+              }
+            );
+            console.log("Updated user", users[character.fid]);
+          }
+        }
+      }
+    });
   }
 );

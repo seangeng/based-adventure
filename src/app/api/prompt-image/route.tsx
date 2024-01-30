@@ -15,6 +15,9 @@ export async function GET(request: Request) {
   const hasCharacter = searchParams.has("character");
   const character = hasCharacter ? searchParams.get("character") : "";
 
+  const hasImage = searchParams.has("image");
+  const image = hasImage ? searchParams.get("image") : "";
+
   // Optional params (health and exp)
   const expChange = searchParams.get("expChange") ?? null;
   const exp = searchParams.get("exp") ?? null;
@@ -56,6 +59,7 @@ export async function GET(request: Request) {
             flexFlow: "row wrap",
             justifyContent: "center",
             gap: 0,
+            wordBreak: "break-word",
           }}
         >
           <p>{text}</p>
@@ -174,6 +178,22 @@ export async function GET(request: Request) {
               </span>
             )}
           </div>
+        )}
+
+        {hasImage && (
+          <img
+            width="128"
+            height="128"
+            // @ts-ignore
+            src={image}
+            style={{
+              borderRadius: 200,
+              position: "absolute",
+              bottom: 30,
+              left: 30,
+              border: "3px solid #222",
+            }}
+          />
         )}
         <BaseQuestLogo />
       </div>

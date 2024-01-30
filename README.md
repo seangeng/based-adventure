@@ -11,12 +11,14 @@ Follow me on Farcaster for the latest game link: https://warpcast.com/seangeng
 
 ## Todo
 
-- Leaderboard (testing)
-- Option to continue vs start a new game (testing)
-- Issue Character NFTs on Base & save state to them
+- Leaderboard (✅ testing)
+- Option to continue vs start a new game (✅ testing)
+- Issue Character NFTs on Base & save state to them (✅ testing)
+- Notifications
 - Character attributes
-- $EXP
-- Character profile links
+- Game backgrounds & environments
+- $EXP Tokens
+- Character profile links & PvP
 - Multi-player quests
 
 ## How it Works
@@ -31,6 +33,10 @@ Several awesome SDKs & frameworks are leveraged to accelerate developement:
 Coinbase OnChain Kit: For frame helpers & future onchain actions.
 
 - https://github.com/coinbase/onchainkit
+
+Neynar: Making it easy to interact with Farcaster
+
+- https://neynar.com/
 
 OpenAI: For chat completions & image generation.
 
@@ -60,6 +66,13 @@ Check out the `/src/app/api/prompt/route.tsx` file to see how the AI prompt loop
    - Return a JSON response like so: { }
 2. Present options as next frame og:buttons
 3. Feed the previous prompt & user selected action to the next prompt screen
+
+### Onchain Interactions
+
+To avoid timeouts and for better resiliency - Inngest is leveraged to run serverless jobs async & in the background.
+This pattern has better monitoring, auto-retrys, and decouples business logic from the frame rendering.
+
+Check out `/src/app/inngest/functions.tsx` to see how this works.
 
 ### Want to build onchain?
 

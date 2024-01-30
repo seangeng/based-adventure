@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
 import { db, openai, parseJSON } from "@/lib/dependencies";
 import { modelId } from "@/lib/constants";
+import { inngest } from "@/inngest/client";
 
 // This is the route that the user will be redirected to after they select a character class from /api/spawn
 const headers = {
@@ -79,6 +80,15 @@ ${JSON.stringify({
         },
         { upsert: true }
       );
+
+      // Send a background Inngest event to create the character NFT
+      // The background job will be decoupled from the response & executes asynchronously
+      await inngest.send({
+        name: "createCharacterNFT",
+        data: {
+          fid,
+        },
+      });
 
       const character = `Level 1 • ${characterClass}`;
 
