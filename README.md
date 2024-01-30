@@ -23,7 +23,7 @@ Follow me on Farcaster for the latest game link: https://warpcast.com/seangeng
 
 ## How it Works
 
-![Technical Diagram](https://raw.githubusercontent.com/seangeng/based-adventure/e2128d21bf099af021946a338635b8022c8f7563/public/base-quest-flowchart.png)
+![Technical Diagram](https://raw.githubusercontent.com/seangeng/based-adventure/46cadc4b3a223c27a28597c106d30e79f743fac4/public/base-quest-diagram.png)
 
 This high level diagram explains the frame states & how menu actions are managed generically.
 Buttons can be passed to the menu in the GET parameter, and map to the business logic - essentially acting as a router.
