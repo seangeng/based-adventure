@@ -271,7 +271,7 @@ export const createCharacterNFT = inngest.createFunction(
               character?.user?.username ?? event.data.fid
             }'s character on Base Quest - an AI powered Farcaster Frames game.  Visit basequest.ai to learn more.`, // Description
             "BASEQUEST", // Symbol
-            `https://basequest.ai/api/nft?fid=${event.data.fid}`, // Image URL
+            `${process.env.DOMAIN}/api/nft?fid=${event.data.fid}`, // Image URL
             0, // Cost
             1 // Quantity
           );
