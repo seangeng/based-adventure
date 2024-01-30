@@ -139,13 +139,24 @@ export async function GET(request: Request) {
             style={{
               display: "flex",
               position: "absolute",
-              bottom: 50,
+              bottom: 100,
               right: 30,
               fontSize: 18,
               color: "#CCC",
             }}
           >
-            {expPercent && (
+            $EXP: {exp}
+            {expChange && (
+              <span
+                style={{
+                  color: "green",
+                  marginLeft: 10,
+                }}
+              >
+                +{expChange}
+              </span>
+            )}
+            {expPercent && expPercent > 0 && (
               <div
                 style={{
                   display: "flex",
@@ -165,17 +176,6 @@ export async function GET(request: Request) {
                   }}
                 />
               </div>
-            )}
-            EXP: {exp}
-            {expChange && (
-              <span
-                style={{
-                  color: "green",
-                  marginLeft: 10,
-                }}
-              >
-                +{expChange}
-              </span>
             )}
           </div>
         )}
