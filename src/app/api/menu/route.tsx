@@ -126,7 +126,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
         image: `api/leaderboard-image?uRank=${userRank}&data=${encodeURIComponent(
           JSON.stringify(leaderboardData)
         )}`,
-        post_url: "api/spawn",
+        post_url: "api/menu?buttons=continue",
         buttons: ["Back to Game"],
       }),
       { headers }
