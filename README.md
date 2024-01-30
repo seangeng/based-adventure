@@ -23,7 +23,7 @@ Follow me on Farcaster for the latest game link: https://warpcast.com/seangeng
 
 ## How it Works
 
-![Technical Diagram](https://raw.githubusercontent.com/seangeng/based-adventure/e2128d21bf099af021946a338635b8022c8f7563/public/base-quest-flowchart.png)
+![Technical Diagram](https://raw.githubusercontent.com/seangeng/based-adventure/46cadc4b3a223c27a28597c106d30e79f743fac4/public/base-quest-diagram.png)
 
 This high level diagram explains the frame states & how menu actions are managed generically.
 Buttons can be passed to the menu in the GET parameter, and map to the business logic - essentially acting as a router.
@@ -73,6 +73,11 @@ To avoid timeouts and for better resiliency - Inngest is leveraged to run server
 This pattern has better monitoring, auto-retrys, and decouples business logic from the frame rendering.
 
 Check out `/src/app/inngest/functions.tsx` to see how this works.
+
+We use the InstaMint.sol contract - developed by my team at Coinbase & optimized for gas & ease of use!
+The NFT factory contract is available at:
+Sepolia Testnet: `0x4d64cAc5Bd09c7CaC9748D1E5a63A30Ee40B6A40`
+Base Mainnet: `0x85db63af3f0cfac7813abb4dfca6d713e937a5dd`
 
 ### Want to build onchain?
 

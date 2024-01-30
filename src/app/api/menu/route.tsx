@@ -95,7 +95,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
           level: { $gt: 0 },
         },
         {
-          sort: { level: -1, turns: 1 },
+          sort: { exp: -1, level: -1, turns: 1 },
           projection: { _id: 0, fid: 1 },
         }
       )

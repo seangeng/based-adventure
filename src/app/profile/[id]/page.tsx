@@ -21,7 +21,9 @@ export async function generateMetadata(
   });
 
   // fetch data
-  const characterState = await db.collection("characters").findOne({ fid: id });
+  const characterState = await db
+    .collection("characters")
+    .findOne({ $or: [{ fid: parseInt(id) }, { username: id }] });
 
   const profileTitle = `${characterState?.user?.username} • Level ${
     characterState?.level ?? 1
