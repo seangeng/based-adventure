@@ -13,7 +13,12 @@ export async function GET(request: Request) {
     new URL("../../../../public/base-quest-bg.jpg", import.meta.url)
   ).then((res) => res.arrayBuffer());
 
-  const charactersCount = await kv.get("charactersCount");
+  let charactersCount = 0;
+  try {
+    charactersCount = (await kv.get("charactersCount")) as number;
+  } catch (e) {
+    console.error(e);
+  }
 
   return new ImageResponse(
     (
@@ -63,21 +68,23 @@ export async function GET(request: Request) {
           Version {version}
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: 0,
-            position: "absolute",
-            bottom: 20,
-            left: 20,
-            background: "rgba(0,0,0,0.7)",
-            padding: "0 20px",
-            lineHeight: "18px",
-          }}
-        >
-          <p>👑 Join {charactersCount as React.ReactNode} players</p>
-        </div>
+        {charactersCount && charactersCount > 0 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 0,
+              position: "absolute",
+              bottom: 20,
+              left: 20,
+              background: "rgba(0,0,0,0.7)",
+              padding: "0 20px",
+              lineHeight: "18px",
+            }}
+          >
+            <p>👑 Join {charactersCount as React.ReactNode} players</p>
+          </div>
+        )}
       </div>
     ),
     {
