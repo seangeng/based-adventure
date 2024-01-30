@@ -1,77 +1,89 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
-const client = getSSLHubRpcClient(process.env.FARCASTER_HUB || "");
-import { buildFrameMetaHTML } from "@/lib/frameUtils";
+import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
 import { db, openai, parseJSON } from "@/lib/dependencies";
-const modelId = "gpt-3.5-turbo";
+import {
+  buildPromptImageParams,
+  calculateCharacterState,
+} from "@/lib/gameAssets";
+import { modelId } from "@/lib/constants";
 
 // This is the general route that the user will see after they select a character class from /api/start-adventure
+const headers = {
+  "Content-Type": "text/html",
+};
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
-  let validatedMessage: Message | undefined = undefined;
-  let fid = 0;
-  try {
-    // Retrieve & validate the frame data from the request body
-    const body = await req.json();
+  const frameData = await getFrameData(req);
 
-    console.log("body", body);
-
-    const frameMessage = Message.decode(
-      Buffer.from(body?.trustedData?.messageBytes || "", "hex")
-    );
-    const result = await client.validateMessage(frameMessage);
-    if (result.isOk() && result.value.valid && result.value.message) {
-      validatedMessage = result.value.message;
-    }
-
-    const buttonIndex =
-      body?.trustedData?.buttonIndex - 1 ||
-      body?.untrustedData.buttonIndex - 1 ||
-      0;
-    // Button index is 1-indexed, but we want it to be 0-indexed
-
-    console.log("validatedMessage", validatedMessage);
-
-    fid = validatedMessage?.data?.fid || 0;
+  if (frameData) {
+    const fid = frameData.fid;
+    const buttonIndex = frameData.buttonIndex;
 
     // Load the character state
     const characterState = await db.collection("characters").findOne({ fid });
     // Map the button action to the text
     if (
-      characterState.class &&
-      characterState.level &&
-      characterState.buttons &&
-      characterState.prevPrompt
+      characterState?.class &&
+      characterState?.level &&
+      characterState?.buttons &&
+      characterState?.prevPrompt
     ) {
+      // Check for any notifications
+      if (characterState.notification) {
+        // Build the image URL
+        const params = `text=${characterState.notification.message}${
+          characterState.notification.image
+            ? "&image=" + encodeURIComponent(characterState.notification.image)
+            : ""
+        }`;
+
+        // Clear the notification
+        db.collection("characters").updateOne(
+          { fid },
+          { $unset: { notification: "" } }
+        );
+
+        // Show the notification screen
+        return new NextResponse(
+          buildFrameMetaHTML({
+            title: "Notification",
+            image: `api/notification-image?${params}`,
+            post_url: characterState.notification.post_url,
+            buttons: characterState.notification.buttons,
+          }),
+          { headers }
+        );
+      }
+
       const buttonValue = characterState.buttons[buttonIndex];
 
-      const headers = {
-        "Content-Type": "text/html",
-      };
-
       const character = `Level ${characterState.level} • ${characterState.class}`;
+      const currenHealth = characterState?.health ? characterState.health : 100;
       const prevPrompt = characterState.prevPrompt;
 
-      const prompt = `The user is a ${character} continuing their adventure.
+      const prompt = `The user is a ${character} (Health: ${currenHealth}/100) continuing their adventure.
 
 When given the prompt: ${prevPrompt}
 The user has chosen: ${buttonValue}
-    
-Write a follow up prompt to continue the adventure (up to 100 characters), and present the user with and present the user with either 2 or 4 action options.
-Action options should be either emoji(s) or short button text (up to 12 characters)
-Return a new description of the character, reflective of their current state based on the choices so far.
-Optionally, you can return a new character level, which will be used to update the character state.
+  
+Follow the instructions:
+- Write a follow up prompt to continue the adventure (up to 100 characters - emojis allowed)
+- Present the user with either 2 or 4 action buttons
+- Buttons should be either emoji(s) or short text (up to 12 characters)
+- Give experience points (exp) between 0 and 100.  Return 0 exp for unmeaningful actions.
+- Return change in health between -100 and 100.  Return 0 for unmeaningful actions.
 
-Return only a JSON response like so: 
+Return only a JSON response like: 
 ${JSON.stringify({
   prompt: "...",
   buttons: ["...", "..."],
-  newCharacterLevel: characterState.level,
+  exp: 0,
+  health: 0,
 })}`;
 
       const completion = await openai.chat.completions.create({
         model: modelId,
-        temperature: 0.5,
+        temperature: 0.7,
         messages: [
           {
             role: "system",
@@ -103,7 +115,14 @@ ${JSON.stringify({
         throw new Error("Invalid buttons");
       }
 
-      const newCharacterLevel = json.newCharacterLevel || characterState.level;
+      // Handle the exp and health changes
+      const { exp, health, level } = calculateCharacterState({
+        class: characterState.class,
+        exp: characterState.exp,
+        health: characterState.health,
+        expChange: json.exp,
+        healthChange: json.health,
+      });
 
       // Update the character state
       db.collection("characters").updateOne(
@@ -112,26 +131,39 @@ ${JSON.stringify({
           $set: {
             prevPrompt: promptText,
             buttons,
-            level: newCharacterLevel,
+            health: health,
+            exp: exp,
+            lastAction: new Date(),
+            level: level,
           },
           $inc: { turns: 1 },
         },
         { upsert: true }
       );
 
+      // Build the image URL
+      const params = buildPromptImageParams(
+        {
+          class: characterState.class,
+          exp: exp,
+          health: health,
+          image: characterState.nft?.thumbnail ?? undefined,
+          expChange: json.exp,
+          healthChange: json.health,
+        },
+        promptText
+      );
+
       return new NextResponse(
         buildFrameMetaHTML({
           title: "Next Screen",
-          image: `api/prompt-image?text=${promptText}&character=${character}`,
+          image: `api/prompt-image?${params}`,
           post_url: "api/prompt",
           buttons: buttons,
         }),
         { headers }
       );
     }
-  } catch (err) {
-    console.error(err);
-    throw new Error("Invalid frame data");
   }
 
   return new NextResponse(null, { status: 400 });

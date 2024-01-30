@@ -1,48 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
-const client = getSSLHubRpcClient(process.env.FARCASTER_HUB || "");
-import { buildFrameMetaHTML } from "@/lib/frameUtils";
+import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
 import { db, openai, parseJSON } from "@/lib/dependencies";
-const modelId = "gpt-3.5-turbo";
+import { modelId } from "@/lib/constants";
+import { inngest } from "@/inngest/client";
 
 // This is the route that the user will be redirected to after they select a character class from /api/spawn
+const headers = {
+  "Content-Type": "text/html",
+};
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
-  let validatedMessage: Message | undefined = undefined;
-  let fid = 0;
-  try {
-    // Retrieve & validate the frame data from the request body
-    const body = await req.json();
+  const frameData = await getFrameData(req);
+  const fid = frameData?.fid ?? 0;
 
-    console.log("body", body);
-
-    const frameMessage = Message.decode(
-      Buffer.from(body?.trustedData?.messageBytes || "", "hex")
-    );
-    const result = await client.validateMessage(frameMessage);
-    if (result.isOk() && result.value.valid && result.value.message) {
-      validatedMessage = result.value.message;
-    }
-
-    const buttonIndex =
-      body?.trustedData?.buttonIndex - 1 ||
-      body?.untrustedData.buttonIndex - 1 ||
-      0;
-    // Button index is 1-indexed, but we want it to be 0-indexed
-
-    console.log("validatedMessage", validatedMessage);
-
-    fid = validatedMessage?.data?.fid || 0;
-
+  if (frameData) {
     // Load the character state
     const characterState = await db.collection("characters").findOne({ fid });
     // Map the button action to the text
     if (characterState) {
-      const characterClass = characterState.buttons[buttonIndex];
-
-      const headers = {
-        "Content-Type": "text/html",
-      };
+      const characterClass = characterState.buttons[frameData.buttonIndex];
 
       const prompt = `The user is a ${characterClass} starting their first adventure.
       
@@ -50,10 +26,11 @@ Write a character narration prompt (up to 100 characters), and present the user 
 Action options should be either emoji(s) or short button text (up to 12 characters)
 You can present either 2 or 4 action options to the user.
 
-Return only a JSON response like so: ${JSON.stringify({
-        prompt: "...",
-        buttons: ["...", "..."],
-      })}`;
+Return only a JSON response like: 
+${JSON.stringify({
+  prompt: "...",
+  buttons: ["...", "..."],
+})}`;
 
       const completion = await openai.chat.completions.create({
         model: modelId,
@@ -91,24 +68,33 @@ Return only a JSON response like so: ${JSON.stringify({
 
       // Update the character state
       db.collection("characters").updateOne(
-        { fid },
+        { fid: fid },
         {
           $set: {
             prevPrompt: promptText,
             buttons,
             class: characterClass,
-            level: 1,
+            lastAction: new Date(),
           },
           $inc: { turns: 1 },
         },
         { upsert: true }
       );
 
+      // Send a background Inngest event to create the character NFT
+      // The background job will be decoupled from the response & executes asynchronously
+      await inngest.send({
+        name: "createCharacterNFT",
+        data: {
+          fid,
+        },
+      });
+
       const character = `Level 1 • ${characterClass}`;
 
       return new NextResponse(
         buildFrameMetaHTML({
-          title: "Next Screen",
+          title: "Continue your Base Quest",
           image: `api/prompt-image?text=${promptText}&character=${character}`,
           post_url: "api/prompt",
           buttons: buttons,
@@ -116,12 +102,17 @@ Return only a JSON response like so: ${JSON.stringify({
         { headers }
       );
     }
-  } catch (err) {
-    console.error(err);
-    throw new Error("Invalid frame data");
   }
 
-  return new NextResponse(null, { status: 400 });
+  return new NextResponse(
+    buildFrameMetaHTML({
+      title: "Continue your Base Quest",
+      image: `api/prompt-image?text=${`Oh no!  An unexpected error happened.  Reach out to @seangeng on Warpcast.`}`,
+      post_url: "api/menu?buttons=menu",
+      buttons: ["Back to Menu"],
+    }),
+    { headers }
+  );
 }
 
 export async function POST(req: NextRequest): Promise<Response> {

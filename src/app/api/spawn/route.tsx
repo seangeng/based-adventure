@@ -1,77 +1,76 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
-const client = getSSLHubRpcClient(process.env.FARCASTER_HUB || "");
-import { buildFrameMetaHTML } from "@/lib/frameUtils";
+import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
 import { db } from "@/lib/dependencies";
+import { kv } from "@vercel/kv";
+import { getFarcasterUsersFromFID } from "@/lib/farcasterUtils";
 
 const headers = {
   "Content-Type": "text/html",
 };
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
-  let validatedMessage: Message | undefined = undefined;
-  let fid = 0;
-  try {
-    // Retrieve & validate the frame data from the request body
-    const body = await req.json();
+  // Get the FID from the request body
+  const frameData = await getFrameData(req);
 
-    console.log("body", body);
-
-    const frameMessage = Message.decode(
-      Buffer.from(body?.trustedData?.messageBytes || "", "hex")
-    );
-    const result = await client.validateMessage(frameMessage);
-    if (result.isOk() && result.value.valid && result.value.message) {
-      validatedMessage = result.value.message;
-    }
-
-    console.log("validatedMessage", validatedMessage);
-
-    fid = validatedMessage?.data?.fid || 0;
-
-    // Check if the FID exists in the database
-    const characterState = await db.collection("characters").findOne({ fid });
-    if (
-      characterState &&
-      characterState.buttons &&
-      characterState.prevPrompt &&
-      characterState.class &&
-      characterState.level
-    ) {
-      // Restart them from the last prompt
-      const character = `Level ${characterState.level} • ${characterState.class}`;
-
-      return new NextResponse(
-        buildFrameMetaHTML({
-          title: "Continue your adventure",
-          image: `api/prompt-image?text=${characterState.prevPrompt}&character=${character}`,
-          post_url: "api/prompt",
-          buttons: characterState.buttons,
-        }),
-        { headers }
-      );
-    }
-  } catch (err) {
-    console.error(err);
-    throw new Error("Invalid frame data");
+  const fid = frameData?.fid || 0;
+  let user = null;
+  if (fid > 0) {
+    // Fetch user data from FID
+    const users = await getFarcasterUsersFromFID(fid);
+    user = users[fid];
   }
 
   // Character creation
-  const characterClasses = ["🧙 Mage", "⚔️ Paladin", "🗡️ Rogue", "⛪ Cleric"];
+  const characterClasses = [
+    "🧙 Mage",
+    "⚔️ Paladin",
+    "🗡️ Rogue",
+    "⛪ Cleric",
+    "🏹 Archer",
+    "🔮 Warlock",
+    "🛡️ Knight",
+    "🔪 Assassin",
+    "🧝‍♀️ Elf",
+    "🧟‍♂️ Zombie",
+    "🧚 Fairy",
+    "🧞 Genie",
+  ];
+
+  const selectedClasses = [] as string[];
+  while (selectedClasses.length < 4) {
+    const randomIndex = Math.floor(Math.random() * characterClasses.length);
+    const selectedClass = characterClasses[randomIndex];
+    if (!selectedClasses.includes(selectedClass)) {
+      selectedClasses.push(selectedClass);
+    }
+  }
 
   // Initalize a new state for this FID
   db.collection("characters").updateOne(
     { fid },
-    { $set: { fid, buttons: characterClasses } },
+    {
+      $set: {
+        // Init default states
+        buttons: selectedClasses,
+        user: user,
+        exp: 0,
+        health: 100,
+        level: 1,
+        lastAction: new Date(),
+      },
+    },
     { upsert: true }
   );
+
+  const charactersCount = db.collection("characters").countDocuments();
+  await kv.set("charactersCount", charactersCount);
 
   return new NextResponse(
     buildFrameMetaHTML({
       title: "Choose your character",
-      image: `api/spawn-image?fid=${fid}`,
+      image: `api/spawn-image?fid=${fid}&username=${user?.username ?? ""}`,
       post_url: "api/start-adventure",
-      buttons: characterClasses,
+      buttons: selectedClasses,
     }),
     { headers }
   );
