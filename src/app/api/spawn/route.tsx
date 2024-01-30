@@ -21,7 +21,29 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   }
 
   // Character creation
-  const characterClasses = ["🧙 Mage", "⚔️ Paladin", "🗡️ Rogue", "⛪ Cleric"];
+  const characterClasses = [
+    "🧙 Mage",
+    "⚔️ Paladin",
+    "🗡️ Rogue",
+    "⛪ Cleric",
+    "🏹 Archer",
+    "🔮 Warlock",
+    "🛡️ Knight",
+    "🔪 Assassin",
+    "🧝‍♀️ Elf",
+    "🧟‍♂️ Zombie",
+    "🧚 Fairy",
+    "🧞 Genie",
+  ];
+
+  const selectedClasses = [] as string[];
+  while (selectedClasses.length < 4) {
+    const randomIndex = Math.floor(Math.random() * characterClasses.length);
+    const selectedClass = characterClasses[randomIndex];
+    if (!selectedClasses.includes(selectedClass)) {
+      selectedClasses.push(selectedClass);
+    }
+  }
 
   // Initalize a new state for this FID
   db.collection("characters").updateOne(
@@ -29,7 +51,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     {
       $set: {
         // Init default states
-        buttons: characterClasses,
+        buttons: selectedClasses,
         user: user,
         exp: 0,
         health: 100,
@@ -48,7 +70,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       title: "Choose your character",
       image: `api/spawn-image?fid=${fid}&username=${user?.username ?? ""}`,
       post_url: "api/start-adventure",
-      buttons: characterClasses,
+      buttons: selectedClasses,
     }),
     { headers }
   );
