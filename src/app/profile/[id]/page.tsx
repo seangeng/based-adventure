@@ -31,8 +31,8 @@ export async function generateMetadata(
     characterState?.user?.username
   }&image=${encodeURIComponent(characterState?.nft?.thumbnail)}&turns=${
     characterState?.turns
-  }&rank=${userRank}&exp=${characterState?.exp}&health=${
-    characterState?.health
+  }&rank=${userRank}&exp=${characterState?.exp ?? 0}&health=${
+    characterState?.health ?? 100
   }`;
 
   const frameMetadata = getFrameMetadata({
@@ -68,8 +68,8 @@ export default async function Page({ params, searchParams }: Props) {
     characterState?.user?.username
   }&image=${encodeURIComponent(characterState?.nft?.thumbnail)}&turns=${
     characterState?.turns
-  }&rank=${userRank}&exp=${characterState?.exp}&health=${
-    characterState?.health
+  }&rank=${userRank}&exp=${characterState?.exp ?? 0}&health=${
+    characterState?.health ?? 100
   }`;
 
   return (
