@@ -5,7 +5,7 @@ import { BaseQuestLogo, calculateExpLevels } from "@/lib/gameAssets";
 export async function GET(request: Request) {
   // Make sure the font exists in the specified path:
   const fontData = await fetch(
-    new URL("../../../../assets/Silkscreen-Regular.ttf", import.meta.url)
+    new URL("../../../../../assets/Silkscreen-Regular.ttf", import.meta.url)
   ).then((res) => res.arrayBuffer());
 
   const { searchParams } = new URL(request.url);
@@ -156,7 +156,7 @@ export async function GET(request: Request) {
                 +{expChange}
               </span>
             )}
-            {expPercent && expPercent > 0 && (
+            {expPercent && expPercent > 0 ? (
               <div
                 style={{
                   display: "flex",
@@ -176,6 +176,8 @@ export async function GET(request: Request) {
                   }}
                 />
               </div>
+            ) : (
+              ""
             )}
           </div>
         )}
@@ -187,11 +189,10 @@ export async function GET(request: Request) {
             // @ts-ignore
             src={image}
             style={{
-              borderRadius: 200,
               position: "absolute",
               bottom: 30,
               left: 30,
-              border: "3px solid #222",
+              border: "5px solid #222",
             }}
           />
         )}

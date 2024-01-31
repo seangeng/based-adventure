@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
-import { db } from "@/lib/dependencies";
+import { db, getUserRankByFid } from "@/lib/dependencies";
 import { getFarcasterUsersFromFID } from "@/lib/farcasterUtils";
 import { buildPromptImageParams } from "@/lib/gameAssets";
+import { kv } from "@vercel/kv";
 
 // This is the main menu router
 // Here we map the various in-game menu button actions to route you to the right screen
@@ -36,6 +37,11 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
 
   if (buttonSelected == "start") {
     // Check if the FID exists in the database
+
+    // Update the global character count
+    const charactersCount = db.collection("characters").countDocuments();
+    await kv.set("charactersCount", charactersCount);
+
     const characterState = await db.collection("characters").findOne({ fid });
     if (
       characterState &&
@@ -50,7 +56,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       return new NextResponse(
         buildFrameMetaHTML({
           title: "Continue your adventure?",
-          image: `api/prompt-image?text=${`Continue your quest from where you left off?`}&character=${character}`,
+          image: `api/image/prompt?text=${`Continue your quest from where you left off?`}&character=${character}`,
           post_url: `api/menu?buttons=${encodeURIComponent(
             "continue,restart" // New buttons should be passed to the menu router
           )}`,
@@ -63,7 +69,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       return new NextResponse(
         buildFrameMetaHTML({
           title: "Start your Adventure",
-          image: `api/prompt-image?text=${`Welcome to Base Quest, an infinite onchain world inside the Base L2.`}`,
+          image: `api/image/prompt?text=${`Welcome to Base Quest, an infinite onchain world inside the Base L2.`}`,
           post_url: `api/spawn`,
           buttons: ["Choose your character 🫵"],
         }),
@@ -87,24 +93,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       .toArray();
 
     // Get the the user's rank based on their fid
-    // Get all users sorted by level
-    const usersSortedByLevel = await db
-      .collection("characters")
-      .find(
-        {
-          level: { $gt: 0 },
-        },
-        {
-          sort: { exp: -1, level: -1, turns: 1 },
-          projection: { _id: 0, fid: 1 },
-        }
-      )
-      .toArray();
-
-    // Find the index of the user with the given fid in the sorted array
-    const userRank =
-      usersSortedByLevel.findIndex((user) => user.fid === frameData?.fid) + 1 ||
-      0;
+    const userRank = await getUserRankByFid(frameData.fid);
 
     // Lookup the users from the FIDs
     const users = await getFarcasterUsersFromFID(
@@ -123,7 +112,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     return new NextResponse(
       buildFrameMetaHTML({
         title: "Leaderboard",
-        image: `api/leaderboard-image?uRank=${userRank}&data=${encodeURIComponent(
+        image: `api/image/leaderboard?uRank=${userRank}&data=${encodeURIComponent(
           JSON.stringify(leaderboardData)
         )}`,
         post_url: "api/menu?buttons=continue",
@@ -157,7 +146,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       return new NextResponse(
         buildFrameMetaHTML({
           title: "Continue your adventure",
-          image: `api/prompt-image?${params}`,
+          image: `api/image/prompt?${params}`,
           post_url: "api/prompt",
           buttons: characterState.buttons,
         }),
@@ -171,7 +160,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     return new NextResponse(
       buildFrameMetaHTML({
         title: "Start your Adventure",
-        image: `api/prompt-image?text=${`A fresh start!  Your state & sins are wiped clean.  You can now begin anew.`}`,
+        image: `api/image/prompt?text=${`A fresh start!  Your state & sins are wiped clean.  You can now begin anew.`}`,
         post_url: `api/spawn`,
         buttons: ["Choose your character 🫵"],
       }),
@@ -183,7 +172,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   return new NextResponse(
     buildFrameMetaHTML({
       title: "Base Quest",
-      image: `api/splash-image`,
+      image: `api/image/splash`,
       post_url: `api/menu?buttons=${encodeURIComponent(
         "start,leaderboard" // Buttons should be passed to the menu router
       )}`,

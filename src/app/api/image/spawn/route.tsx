@@ -5,7 +5,7 @@ import { BaseQuestLogo } from "@/lib/gameAssets";
 export async function GET(request: Request) {
   // Make sure the font exists in the specified path:
   const fontData = await fetch(
-    new URL("../../../../assets/Silkscreen-Regular.ttf", import.meta.url)
+    new URL("../../../../../assets/Silkscreen-Regular.ttf", import.meta.url)
   ).then((res) => res.arrayBuffer());
 
   const { searchParams } = new URL(request.url);

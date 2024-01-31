@@ -1,3 +1,5 @@
+import { db } from "@/lib/dependencies";
+
 export function calculateLevel(exp: number): number {
   let level = 0;
   let requiredExpForNextLevel = 100;
@@ -39,7 +41,7 @@ export function calculateCharacterState(character: {
   healthChange?: number;
 }) {
   // Handle the exp and health changes
-  let newHealth = character.health;
+  let newHealth = character.health !== undefined ? character.health : 100;
   if (character.healthChange) {
     newHealth += character.healthChange;
   }
@@ -52,8 +54,13 @@ export function calculateCharacterState(character: {
 
   // Calculate the new level
   const expChange = Math.max(0, Math.min(character.expChange || 0, 100)) ?? 0;
-  const newCharacterExp = character.exp + expChange;
+  let newCharacterExp = character.exp + expChange;
   const characterLevel = calculateLevel(newCharacterExp);
+
+  // if exp is not a number for some reason, make it 0
+  if (isNaN(newCharacterExp)) {
+    newCharacterExp = 100;
+  }
 
   const characterDescription = `Level ${characterLevel} • ${character.class}`;
 
@@ -99,16 +106,20 @@ export function buildPromptImageParams(
 }
 
 // Logo for the game
-export const BaseQuestLogo: React.FC = () => {
+export const BaseQuestLogo: React.FC<{
+  position?: "absolute" | "relative";
+  top?: number;
+  left?: number;
+}> = ({ position = "absolute", top = 20, left = 30 }) => {
   return (
     <div
       style={{
         display: "flex",
         alignItems: "center",
         gap: 12,
-        position: "absolute",
-        top: 20,
-        left: 30,
+        position: position,
+        top: top,
+        left: left,
       }}
     >
       <svg

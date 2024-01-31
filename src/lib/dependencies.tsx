@@ -23,3 +23,21 @@ export function parseJSON(json: string): any {
     throw new Error("Error parsing JSON: " + jsonString);
   }
 }
+
+export async function getUserRankByFid(fid: number) {
+  const usersSortedByLevel = await db
+    .collection("characters")
+    .find(
+      {
+        level: { $gt: 0 },
+      },
+      {
+        sort: { exp: -1, level: -1, turns: 1 },
+        projection: { _id: 0, fid: 1 },
+      }
+    )
+    .toArray();
+
+  // Find the index of the user with the given fid in the sorted array
+  return usersSortedByLevel.findIndex((user) => user.fid === fid) + 1 || 0;
+}

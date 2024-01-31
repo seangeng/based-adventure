@@ -48,7 +48,7 @@ Inngest: For executing background jobs (there is latency when generating images 
 
 Vercel: For hosting, and easy programmatic OpenGraph image generation:
 
-- Check out `/src/app/api/prompt-image/route.tsx` as an example
+- Check out `/src/app/api/image/prompt/route.tsx` as an example
 - https://vercel.com/docs/functions/edge-functions/og-image-generation/og-image-examples
 
 ### Basic AI Workflow

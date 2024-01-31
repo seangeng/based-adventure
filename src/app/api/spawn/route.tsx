@@ -68,7 +68,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   return new NextResponse(
     buildFrameMetaHTML({
       title: "Choose your character",
-      image: `api/spawn-image?fid=${fid}&username=${user?.username ?? ""}`,
+      image: `api/image/spawn?fid=${fid}&username=${user?.username ?? ""}`,
       post_url: "api/start-adventure",
       buttons: selectedClasses,
     }),

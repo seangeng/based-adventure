@@ -38,7 +38,7 @@ ${JSON.stringify({
         messages: [
           {
             role: "system",
-            content: `You are the narrator in a choose your own adventure text based game called Base Quest.`,
+            content: `You are the narrator in a choose your own adventure text based game called Base Quest, a fantasy world inside the Base L2 EVM blockchain by Coinbase.`,
           },
           {
             role: "user",
@@ -95,7 +95,7 @@ ${JSON.stringify({
       return new NextResponse(
         buildFrameMetaHTML({
           title: "Continue your Base Quest",
-          image: `api/prompt-image?text=${promptText}&character=${character}`,
+          image: `api/image/prompt?text=${promptText}&character=${character}`,
           post_url: "api/prompt",
           buttons: buttons,
         }),
@@ -107,7 +107,7 @@ ${JSON.stringify({
   return new NextResponse(
     buildFrameMetaHTML({
       title: "Continue your Base Quest",
-      image: `api/prompt-image?text=${`Oh no!  An unexpected error happened.  Reach out to @seangeng on Warpcast.`}`,
+      image: `api/image/prompt?text=${`Oh no!  An unexpected error happened.  Reach out to @seangeng on Warpcast.`}`,
       post_url: "api/menu?buttons=menu",
       buttons: ["Back to Menu"],
     }),

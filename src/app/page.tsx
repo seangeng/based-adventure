@@ -5,7 +5,7 @@ import SearchComponent from "@/components/search";
 
 const frameMetadata = getFrameMetadata({
   buttons: ["Start your Adventure! ▶️", "Leaderboard 🏆"],
-  image: `${process.env.DOMAIN}/api/splash-image`,
+  image: `${process.env.DOMAIN}/api/image/splash`,
   post_url: `${process.env.DOMAIN}/api/menu?buttons=${encodeURIComponent(
     "start,leaderboard" // Buttons should be passed to the menu router
   )}`,
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Base Quest - Start your Adventure!",
     description: "AI Powered Text Adventure on Base L2",
-    images: [`${process.env.DOMAIN}/api/splash-image`],
+    images: [`${process.env.DOMAIN}/api/image/splash`],
   },
   other: {
     ...frameMetadata,
@@ -30,7 +30,7 @@ export default function Page() {
       <div className="absolute -z-10 bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
       <a href={exampleWarpcastLink} className="w-2/3 max-sm:w-full">
         <img
-          src="/api/splash-image"
+          src="/api/image/splash"
           className="w-full border-2 border-gray-600 rounded-md shadow"
         />
       </a>

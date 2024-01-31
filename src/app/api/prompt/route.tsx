@@ -47,7 +47,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
         return new NextResponse(
           buildFrameMetaHTML({
             title: "Notification",
-            image: `api/notification-image?${params}`,
+            image: `api/image/notification?${params}`,
             post_url: characterState.notification.post_url,
             buttons: characterState.notification.buttons,
           }),
@@ -87,7 +87,7 @@ ${JSON.stringify({
         messages: [
           {
             role: "system",
-            content: `You are the narrator in a choose your own adventure text based game called Base Quest.`,
+            content: `You are the narrator in a choose your own adventure text based game called Base Quest, a fantasy world inside the Base L2 EVM blockchain by Coinbase.`,
           },
           {
             role: "user",
@@ -119,7 +119,7 @@ ${JSON.stringify({
       const { exp, health, level } = calculateCharacterState({
         class: characterState.class,
         exp: characterState.exp,
-        health: characterState.health,
+        health: characterState.health ?? 100,
         expChange: json.exp,
         healthChange: json.health,
       });
@@ -131,8 +131,8 @@ ${JSON.stringify({
           $set: {
             prevPrompt: promptText,
             buttons,
-            health: health,
-            exp: exp,
+            health: typeof health === "number" ? health : 100,
+            exp: typeof exp === "number" ? exp : 0,
             lastAction: new Date(),
             level: level,
           },
@@ -157,7 +157,7 @@ ${JSON.stringify({
       return new NextResponse(
         buildFrameMetaHTML({
           title: "Next Screen",
-          image: `api/prompt-image?${params}`,
+          image: `api/image/prompt?${params}`,
           post_url: "api/prompt",
           buttons: buttons,
         }),

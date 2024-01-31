@@ -1,15 +1,15 @@
 export const runtime = "edge";
 import { ImageResponse } from "next/og";
-import { BaseQuestLogo, calculateExpLevels } from "@/lib/gameAssets";
+import { BaseQuestLogo } from "@/lib/gameAssets";
 
 export async function GET(request: Request) {
   // Make sure the font exists in the specified path:
   const fontData = await fetch(
-    new URL("../../../../assets/Silkscreen-Regular.ttf", import.meta.url)
+    new URL("../../../../../assets/Silkscreen-Regular.ttf", import.meta.url)
   ).then((res) => res.arrayBuffer());
 
   const imageData = await fetch(
-    new URL("../../../../public/notification-icon.png", import.meta.url)
+    new URL("../../../../../public/notification-icon.png", import.meta.url)
   ).then((res) => res.arrayBuffer());
 
   const { searchParams } = new URL(request.url);

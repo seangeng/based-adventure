@@ -15,6 +15,7 @@
     "@vercel/kv": "^1.0.1",
     "@vercel/og": "^0.6.2",
     "axios": "^1.6.7",
+    "copy-to-clipboard": "^3.3.3",
     "ethers": "^6.10.0",
     "form-data": "^4.0.0",
     "inngest": "^3.12.0",
