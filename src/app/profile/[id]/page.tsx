@@ -8,6 +8,12 @@ type Props = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
+interface NFTData {
+  fid: number;
+  contractAddress: string;
+  contractHash: string;
+}
+
 export async function generateMetadata(
   { params, searchParams }: Props,
   parent: ResolvingMetadata
@@ -72,10 +78,28 @@ export default async function Page({ params, searchParams }: Props) {
     characterState?.health ?? 100
   }`;
 
+  // Load the NFT
+  let nft = false as NFTData | false;
+  if (characterState?.fid) {
+    nft = (await db.collection("nfts").findOne({
+      fid: characterState?.fid,
+    })) as unknown as NFTData;
+  }
+
+  console.log("nft", nft);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 h-full w-full max-sm:p-6">
       <div className="absolute bottom-0 -z-10 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
       <div className="flex flex-col gap-8 items-center w-2/3 max-sm:w-full">
+        <div className="w-2/3 max-sm:w-full text-center">
+          <p className="text-lg text-gray-500">
+            Post this URL as a Frame on Warpcast to interact with this profile:
+          </p>
+          <CopyPasteInput
+            value={`${process.env.DOMAIN}/profile/${params.id}`}
+          />
+        </div>
         <div className="w-full min-w-[256px]">
           <div className="relative">
             <img
@@ -98,14 +122,46 @@ export default async function Page({ params, searchParams }: Props) {
             </div>
           </div>
         </div>
-        <div className="w-2/3 text-center">
-          <p className="text-lg text-gray-500">
-            Post this URL as a Frame on Warpcast to interact with this profile:
-          </p>
-          <CopyPasteInput
-            value={`${process.env.DOMAIN}/profile/${params.id}`}
-          />
-        </div>
+        {nft && (
+          <div className="w-full text-center flex flex-col gap-5">
+            <p className="text-gray-500">
+              Onchain data on{" "}
+              <a
+                href="https://base.org"
+                target="_blank"
+                className=" text-blue-600"
+              >
+                Base
+              </a>{" "}
+              for {characterState?.user?.username}'s character:
+            </p>
+            <a
+              href={`https://sepolia.basescan.org/address/${nft.contractAddress}`}
+              target="_blank"
+            >
+              NFT Contract Address:{" "}
+              <span className="text-blue-500 p-1 px-2 rounded bg-slate-800">
+                {nft.contractAddress}
+              </span>
+            </a>
+            <a
+              href={`https://sepolia.basescan.org/tx/${nft.contractHash}`}
+              target="_blank"
+            >
+              Minting Transaction:{" "}
+              <span className="text-blue-500 p-1 px-2 rounded bg-slate-800">
+                {nft.contractHash}
+              </span>
+            </a>
+            <a href="https://sepolia.basescan.org/" target="_blank">
+              Minted to:{" "}
+              <span className="text-blue-500 p-1 px-2 rounded bg-slate-800">
+                {characterState?.user?.verifications[0] ??
+                  characterState?.user?.custody_address}
+              </span>
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );

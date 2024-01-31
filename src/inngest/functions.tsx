@@ -288,6 +288,7 @@ export const createCharacterNFT = inngest.createFunction(
             {
               $set: {
                 contractHash: createContractTx.hash,
+                rpc: process.env.RPC_URL,
               },
             },
             { upsert: true }
