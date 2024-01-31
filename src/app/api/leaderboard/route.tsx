@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
-import { getFarcasterUsersFromFID } from "@/lib/farcasterUtils";
 import { db } from "@/lib/dependencies";
 
 const headers = {
@@ -16,6 +15,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     .find(
       {
         level: { $gt: 0 },
+        "user.username": { $exists: true },
       },
       {
         sort: { exp: -1, level: -1, turns: 1 },
@@ -45,17 +45,12 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     usersSortedByLevel.findIndex((user) => user.fid === frameData?.fid) + 1 ||
     0;
 
-  // Lookup the users from the FIDs
-  const users = await getFarcasterUsersFromFID(
-    leaderboard.map((character: any) => character.fid)
-  );
-
   // Map the data to the format that the leaderboard image expects (keeps url length down)
   const leaderboardData = leaderboard.map((character: any) => {
     return {
       c: character.class,
       l: character.level,
-      i: users[character.fid]?.username || character.fid,
+      i: character.user.username || character.fid,
     };
   });
 

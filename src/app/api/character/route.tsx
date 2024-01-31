@@ -17,7 +17,9 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   }
 
   // Get the character state from the database
-  const characterState = await db.collection("characters").findOne({ fid });
+  const characterState = await db
+    .collection("characters")
+    .findOne({ fid: parseInt(fid) });
 
   if (!characterState) {
     return new NextResponse(null, { status: 404 });
