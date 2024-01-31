@@ -6,29 +6,9 @@ import InstaMintContract from "../app/assets/contracts/InstaMint.json";
 import InstaMintFactory from "../app/assets/contracts/InstaMintFactory.json";
 import { getFarcasterUsersFromFID } from "@/lib/farcasterUtils";
 import { default as axios } from "axios";
-import FormData from "form-data";
 import { put } from "@vercel/blob";
 import { JsonRpcProvider } from "ethers";
 import sharp from "sharp";
-
-async function mint(contractAddress: string, userWalletAddress: string) {
-  const privateKey = process.env.WALLET_PRIVATE_KEY;
-  if (!privateKey) {
-    throw new NonRetriableError("No key");
-  }
-  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-
-  const wallet = new ethers.Wallet(privateKey);
-  const signer = wallet.connect(provider);
-
-  const mintContract = new ethers.Contract(
-    contractAddress,
-    InstaMintContract.abi,
-    signer
-  );
-  const reponse = await mintContract.mint(userWalletAddress, 1);
-  return reponse.hash;
-}
 
 async function getNewContractAddress(
   txHash: string,

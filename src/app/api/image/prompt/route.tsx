@@ -12,6 +12,9 @@ export async function GET(request: Request) {
   const hasText = searchParams.has("text");
   const text = hasText ? searchParams.get("text") : "No text...";
 
+  const hasSubtext = searchParams.has("subtext");
+  const subtext = hasSubtext ? searchParams.get("subtext") : "";
+
   const hasCharacter = searchParams.has("character");
   const character = hasCharacter ? searchParams.get("character") : "";
 
@@ -63,6 +66,16 @@ export async function GET(request: Request) {
           }}
         >
           <p>{text}</p>
+          {hasText && hasSubtext && (
+            <p
+              style={{
+                fontSize: 32,
+                color: "#3773F5",
+              }}
+            >
+              {subtext}
+            </p>
+          )}
         </div>
         <div
           style={{

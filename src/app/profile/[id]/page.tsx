@@ -41,10 +41,25 @@ export async function generateMetadata(
     characterState?.health ?? 100
   }`;
 
+  const buttons = ["Add to party 🤝"];
+  const buttonMap = ["add-to-party"];
+  if (characterState?.health < 100) {
+    buttons.push("Heal ❤️‍🩹 (+10 HP)");
+    buttonMap.push("heal");
+  }
+  if (characterState?.health > 0) {
+    buttons.push("Fight 🤺");
+    buttonMap.push("fight");
+  }
+  buttons.push("Boost 🔼 (+10 EXP)");
+  buttonMap.push("boost");
+
   const frameMetadata = getFrameMetadata({
-    buttons: ["Add to party 🤝", "Fight 🤺", "Heal ❤️‍🩹", "Boost 🔼"],
+    buttons: buttons,
     image: `${process.env.DOMAIN}/api/image/profile?${imageParams}`,
-    post_url: `${process.env.DOMAIN}/api/profile`,
+    post_url: `${process.env.DOMAIN}/api/profile?fid=${
+      characterState?.fid
+    }&buttons=${encodeURIComponent(buttonMap.join(","))}`,
   });
 
   return {
@@ -86,8 +101,6 @@ export default async function Page({ params, searchParams }: Props) {
     })) as unknown as NFTData;
   }
 
-  console.log("nft", nft);
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 h-full w-full max-sm:p-6">
       <div className="absolute bottom-0 -z-10 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
@@ -123,7 +136,7 @@ export default async function Page({ params, searchParams }: Props) {
           </div>
         </div>
         {nft && (
-          <div className="w-full text-center flex flex-col gap-5">
+          <div className="w-full text-center flex flex-col gap-5 mb-10">
             <p className="text-gray-500">
               Onchain data on{" "}
               <a
