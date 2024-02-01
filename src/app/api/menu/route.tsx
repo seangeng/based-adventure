@@ -179,7 +179,9 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     return new NextResponse(
       buildFrameMetaHTML({
         title: "Start your Adventure",
-        image: `api/image/prompt?text=${`A fresh start!  Your state & sins are wiped clean.  You can now begin anew.`}`,
+        image: `api/image/prompt?text=${encodeURIComponent(
+          `A fresh start!  Your state & sins are wiped clean.  You can now begin anew.`
+        )}`,
         post_url: `api/spawn`,
         buttons: ["Choose your character 🫵"],
       }),

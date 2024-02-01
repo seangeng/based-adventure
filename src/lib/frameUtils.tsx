@@ -19,8 +19,9 @@ export function buildFrameMetaHTML({
   buttons.forEach((button, index) => {
     // If button contains |, it means it's a redirect button
     const redirect = button.split("|");
+    console.log("redirect button", redirect);
 
-    if (redirect.length > 1) {
+    if (redirect.length == 2) {
       // If it's a redirect button, add the redirect to the list
       redirects.push(redirect[1]);
       // Add the button meta with the redirect

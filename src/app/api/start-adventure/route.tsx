@@ -95,7 +95,9 @@ ${JSON.stringify({
       return new NextResponse(
         buildFrameMetaHTML({
           title: "Continue your Base Quest",
-          image: `api/image/prompt?text=${promptText}&character=${character}`,
+          image: `api/image/prompt?text=${encodeURIComponent(
+            promptText
+          )}&character=${character}`,
           post_url: "api/prompt",
           buttons: buttons,
         }),
