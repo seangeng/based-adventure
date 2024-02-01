@@ -134,6 +134,17 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
             }
           );
 
+          // Add to logs
+          await db.collection("logs").insertOne({
+            targetFid: characterState.fid,
+            userFid: fid,
+            type: "mint",
+            timestamp: new Date().getTime(),
+            data: {
+              mintTxHash,
+            },
+          });
+
           return new NextResponse(
             buildFrameMetaHTML({
               title: "Base Quest",
@@ -201,6 +212,19 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
           },
         }
       );
+
+      // Add to logs
+      await db.collection("logs").insertOne({
+        targetFid: characterState.fid,
+        userFid: fid,
+        type: "fight",
+        timestamp: new Date().getTime(),
+        data: {
+          targetFidChanges: {
+            health: -1,
+          },
+        },
+      });
 
       return new NextResponse(
         buildFrameMetaHTML({
@@ -313,6 +337,24 @@ ${JSON.stringify({
     );
     // Todo - handle the level changes
 
+    // Add to logs
+    await db.collection("logs").insertOne({
+      targetFid: characterState.fid,
+      userFid: fid,
+      type: "fight",
+      timestamp: new Date().getTime(),
+      data: {
+        targetFidChanges: {
+          health: json.userAHealthChange,
+          exp: json.exp,
+        },
+        userFidChanges: {
+          health: json.userBHealthChange,
+          exp: json.exp,
+        },
+      },
+    });
+
     // Return the outcome
     const subtitle = `You fought ${characterState.user?.username}'s & lost ${json.userAHealthChange} HP!  They lost ${json.userBHealthChange} HP!`;
     return new NextResponse(
@@ -367,6 +409,17 @@ ${JSON.stringify({
       }
     );
 
+    // Add to logs
+    await db.collection("logs").insertOne({
+      targetFid: characterState.fid,
+      userFid: fid,
+      type: "heal",
+      timestamp: new Date().getTime(),
+      data: {
+        health: newHealth,
+      },
+    });
+
     return new NextResponse(
       buildFrameMetaHTML({
         title: "Base Quest",
@@ -391,6 +444,17 @@ ${JSON.stringify({
         },
       }
     );
+
+    // Add to logs
+    await db.collection("logs").insertOne({
+      targetFid: characterState.fid,
+      userFid: fid,
+      type: "boost",
+      timestamp: new Date().getTime(),
+      data: {
+        exp: 10,
+      },
+    });
 
     return new NextResponse(
       buildFrameMetaHTML({
