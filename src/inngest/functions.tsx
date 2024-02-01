@@ -318,7 +318,7 @@ export const createCharacterNFT = inngest.createFunction(
             message: `Your character NFT has been minted to: ${userWalletAddress}`,
             txn: nftContractHash,
             image: thumbnailImage,
-            post_url: "api/menu?buttons=continue",
+            post_url: "api/menu?buttons=continue,view",
             buttons: [
               `Awesome!  Got it!`,
               `View on Base|https://sepolia.basescan.org/tx/${nftContractHash}`,
