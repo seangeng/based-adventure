@@ -50,6 +50,8 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     return new NextResponse(null, { status: 400 });
   }
 
+  console.log(fid, "Button selected:", buttonSelected);
+
   if (buttonSelected == "start") {
     // Check if the FID exists in the database
 
@@ -78,7 +80,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
           buttons: [
             "Continue ▶️",
             "New Game 🆕",
-            `Profile ↗️|${process.env.DOMAIN}/profile/${
+            `Profile|${process.env.DOMAIN}/profile/${
               characterState.user?.username ?? fid
             }`,
           ],
@@ -153,6 +155,8 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       characterState.class &&
       characterState.level
     ) {
+      console.log("Continuing the game for FID", fid);
+
       // Restart them from the last prompt
       const params = buildPromptImageParams(
         {
