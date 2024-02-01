@@ -78,7 +78,9 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
           buttons: [
             "Continue ▶️",
             "New Game 🆕",
-            `Profile ↗️|${process.env.DOMAIN}/api/profile?fid=${fid}`,
+            `Profile ↗️|${process.env.DOMAIN}/profile/${
+              characterState.user?.username ?? fid
+            }`,
           ],
         }),
         { headers }
