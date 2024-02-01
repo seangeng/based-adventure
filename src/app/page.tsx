@@ -4,9 +4,7 @@ import { exampleWarpcastLink } from "@/lib/constants";
 import SearchComponent from "@/components/search";
 import { db } from "@/lib/dependencies";
 
-export async function generateMetadata(
-  parent: ResolvingMetadata
-): Promise<Metadata> {
+export async function generateMetadata(): Promise<Metadata> {
   // Fetchs some basic stats to pass to metadata
   const playersCount = await db.collection("characters").countDocuments();
 
