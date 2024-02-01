@@ -149,10 +149,11 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
             buildFrameMetaHTML({
               title: "Base Quest",
               image: `api/image/prompt?text=${`🤝 You've minted ${characterState.user?.username}'s character to your party!`}&subtext=${mintTxHash}`,
-              post_url: `api/menu?buttons=${encodeURIComponent(
-                "start" // Buttons should be passed to the menu router
-              )}`,
-              buttons: ["Back to Base Quest ▶️"],
+              post_url: `api/menu?buttons=start,minted`,
+              buttons: [
+                "Back to Base Quest ▶️",
+                `View TX|https://sepolia.basescan.org/tx/${mintTxHash}`,
+              ],
             }),
             { headers }
           );

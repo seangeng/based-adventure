@@ -142,6 +142,10 @@ export default async function Page({ params, searchParams }: Props) {
     })) as unknown as NFTData;
   }
 
+  const userWalletAddress =
+    characterState?.user?.verifications[0] ??
+    characterState?.user?.custody_address;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 h-full w-full max-sm:p-6">
       <div className="absolute bottom-0 -z-10 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
@@ -208,13 +212,13 @@ export default async function Page({ params, searchParams }: Props) {
                 {truncateHash(nft.contractHash)}
               </span>
             </a>
-            <a href="https://sepolia.basescan.org/" target="_blank">
+            <a
+              href={`https://sepolia.basescan.org/address/${userWalletAddress}`}
+              target="_blank"
+            >
               Minted to:{" "}
               <span className="text-blue-500 p-1 px-2 rounded bg-slate-800">
-                {truncateHash(
-                  characterState?.user?.verifications[0] ??
-                    characterState?.user?.custody_address
-                )}
+                {truncateHash(userWalletAddress)}
               </span>
             </a>
           </div>
