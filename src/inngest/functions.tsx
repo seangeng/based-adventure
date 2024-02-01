@@ -321,7 +321,7 @@ export const createCharacterNFT = inngest.createFunction(
             post_url: "api/menu?buttons=continue,view",
             buttons: [
               `Awesome!  Got it!`,
-              `View on Base|https://sepolia.basescan.org/tx/${nftContractHash}`,
+              `View on Base|${process.env.DOMAIN}/api/redirect?tx=${nftContractHash}`,
             ],
           },
         },

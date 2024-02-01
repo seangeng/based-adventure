@@ -152,7 +152,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
               post_url: `api/menu?buttons=start,minted`,
               buttons: [
                 "Back to Base Quest ▶️",
-                `View TX|https://sepolia.basescan.org/tx/${mintTxHash}`,
+                `View TX|${process.env.DOMAIN}/api/redirect?tx=${mintTxHash}`,
               ],
             }),
             { headers }
