@@ -31,6 +31,7 @@ export function buildFrameMetaHTML({
         index + 1
       }:action" content="post_redirect">`;
     } else {
+      redirects.push("");
       // If it's not a redirect button, add the regular button meta
       buttonsMeta += `<meta name="fc:frame:button:${
         index + 1
@@ -51,9 +52,7 @@ export function buildFrameMetaHTML({
             <meta name="fc:frame:post_url" content="${
               process.env.DOMAIN
             }/${post_url}${
-    redirects.length > 0
-      ? `&redirects=${encodeURIComponent(redirects.join(","))}`
-      : ""
+    redirects.length > 0 ? `&r=${encodeURIComponent(redirects.join(","))}` : ""
   }">
             ${buttonsMeta}
         </head>

@@ -27,7 +27,8 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   }
 
   // If there's a redirect, respond with proper redirect
-  const redirects = url.searchParams.get("redirects")?.split(",") ?? [];
+  // Shorten the URL length down
+  const redirects = url.searchParams.get("r")?.split(",") ?? [];
   if (
     redirects &&
     redirects[frameData.buttonIndex] !== undefined &&
