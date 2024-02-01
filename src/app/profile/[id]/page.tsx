@@ -2,6 +2,8 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { getFrameMetadata } from "@coinbase/onchainkit";
 import { db, getUserRankByFid } from "@/lib/dependencies";
 import CopyPasteInput from "@/components/CopyPasteInput";
+import { calculateCharacterState } from "@/lib/gameAssets";
+import ProfileButtons from "@/components/ProfileButtons";
 
 type Props = {
   params: { id: string };
@@ -29,13 +31,21 @@ export async function generateMetadata(
   // Get the rank
   const userRank = await getUserRankByFid(characterState?.fid);
 
+  const { description } = calculateCharacterState({
+    class: characterState?.class,
+    exp: characterState?.level ?? 0,
+    health: characterState?.health ?? 100,
+  });
+
   const profileTitle = `${characterState?.user?.username} • Level ${
     characterState?.level ?? 1
   } • ${characterState?.class ?? "Adventurer"} - Base Quest`;
 
   const imageParams = `name=${
     characterState?.user?.username
-  }&image=${encodeURIComponent(characterState?.nft?.thumbnail)}&turns=${
+  }&image=${encodeURIComponent(
+    characterState?.nft?.thumbnail
+  )}&character=${encodeURIComponent(description)}&turns=${
     characterState?.turns
   }&rank=${userRank}&exp=${characterState?.exp ?? 0}&health=${
     characterState?.health ?? 100
@@ -85,9 +95,30 @@ export default async function Page({ params, searchParams }: Props) {
   // Get the rank
   const userRank = await getUserRankByFid(characterState?.fid);
 
+  const { description } = calculateCharacterState({
+    class: characterState?.class,
+    exp: characterState?.level ?? 0,
+    health: characterState?.health ?? 100,
+  });
+
+  const buttons = ["Add to party 🤝"];
+  const buttonMap = ["add-to-party"];
+  if (characterState?.health < 100) {
+    buttons.push("Heal ❤️‍🩹 (+10 HP)");
+    buttonMap.push("heal");
+  }
+  if (characterState?.health > 0) {
+    buttons.push("Fight 🤺");
+    buttonMap.push("fight");
+  }
+  buttons.push("Boost 🔼 (+10 EXP)");
+  buttonMap.push("boost");
+
   const imageParams = `name=${
     characterState?.user?.username
-  }&image=${encodeURIComponent(characterState?.nft?.thumbnail)}&turns=${
+  }&image=${encodeURIComponent(
+    characterState?.nft?.thumbnail
+  )}&character=${encodeURIComponent(description)}&turns=${
     characterState?.turns
   }&rank=${userRank}&exp=${characterState?.exp ?? 0}&health=${
     characterState?.health ?? 100
@@ -107,11 +138,12 @@ export default async function Page({ params, searchParams }: Props) {
       <div className="flex flex-col gap-8 items-center w-2/3 max-sm:w-full">
         <div className="w-2/3 max-sm:w-full text-center">
           <p className="text-lg text-gray-500">
-            {`Post this URL as a Frame on Warpcast to interact with this profile:`}
+            {`Post this URL as a Frame on Warpcast for others to interact with this profile:`}
           </p>
           <CopyPasteInput
             value={`${process.env.DOMAIN}/profile/${params.id}`}
           />
+          <ProfileButtons buttons={buttons} />
         </div>
         <div className="w-full min-w-[256px]">
           <div className="relative">
