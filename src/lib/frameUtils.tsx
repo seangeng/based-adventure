@@ -15,10 +15,24 @@ export function buildFrameMetaHTML({
 }) {
   // Build buttons meta
   let buttonsMeta = "";
+  const redirects = [] as string[];
   buttons.forEach((button, index) => {
-    buttonsMeta += `<meta name="fc:frame:button:${
-      index + 1
-    }" content="${button}">`;
+    // If button contains |, it means it's a redirect button
+    const redirect = button.split("|");
+
+    if (redirect.length > 1) {
+      // If it's a redirect button, add the redirect to the list
+      redirects.push(redirect[1]);
+      // Add the button meta with the redirect
+      buttonsMeta += `<meta name="fc:frame:button:${
+        index + 1
+      }:post_redirect" content="${redirect[0]}">`;
+    } else {
+      // If it's not a redirect button, add the regular button meta
+      buttonsMeta += `<meta name="fc:frame:button:${
+        index + 1
+      }" content="${button}">`;
+    }
   });
 
   return `<!DOCTYPE html>
@@ -28,8 +42,16 @@ export function buildFrameMetaHTML({
             <meta property="og:title" content="${title}">
             <meta property="og:image" content="${process.env.DOMAIN}/${image}">
             <meta name="fc:frame" content="vNext">
-            <meta name="fc:frame:image" content="${process.env.DOMAIN}/${image}">
-            <meta name="fc:frame:post_url" content="${process.env.DOMAIN}/${post_url}">
+            <meta name="fc:frame:image" content="${
+              process.env.DOMAIN
+            }/${image}">
+            <meta name="fc:frame:post_url" content="${
+              process.env.DOMAIN
+            }/${post_url}${
+    redirects.length > 0
+      ? `&redirects=${encodeURIComponent(redirects.join(","))}`
+      : ""
+  }">
             ${buttonsMeta}
         </head>
         <body>

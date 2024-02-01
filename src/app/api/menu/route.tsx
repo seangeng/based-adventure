@@ -26,6 +26,21 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     return new NextResponse(null, { status: 400 });
   }
 
+  // If there's a redirect, respond with proper redirect
+  const redirects = url.searchParams.get("redirects")?.split(",") ?? [];
+  if (
+    redirects &&
+    redirects[frameData.buttonIndex] !== undefined &&
+    redirects[frameData.buttonIndex] !== ""
+  ) {
+    return new NextResponse(null, {
+      status: 302,
+      headers: {
+        Location: redirects[frameData.buttonIndex],
+      },
+    });
+  }
+
   const fid = frameData.fid;
   const buttonIndex = frameData.buttonIndex;
   const buttonSelected = buttons[buttonIndex] ?? null;
@@ -58,9 +73,13 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
           title: "Continue your adventure?",
           image: `api/image/prompt?text=${`Continue your quest from where you left off?`}&character=${character}`,
           post_url: `api/menu?buttons=${encodeURIComponent(
-            "continue,restart" // New buttons should be passed to the menu router
+            "continue,restart,profile" // New buttons should be passed to the menu router
           )}`,
-          buttons: ["Continue ▶️", "New Game 🆕"],
+          buttons: [
+            "Continue ▶️",
+            "New Game 🆕",
+            `Profile ↗️|${process.env.DOMAIN}/api/profile?fid=${fid}`,
+          ],
         }),
         { headers }
       );
