@@ -70,7 +70,10 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   }
 
   // Check if the fid is in the characterState.interactions array
-  if (characterState.interactions.includes(fid)) {
+  if (
+    characterState.interactions &&
+    characterState.interactions?.includes(fid)
+  ) {
     return new NextResponse(
       buildFrameMetaHTML({
         title: "Base Quest",
