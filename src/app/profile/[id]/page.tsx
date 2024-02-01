@@ -5,6 +5,16 @@ import CopyPasteInput from "@/components/CopyPasteInput";
 import { calculateCharacterState } from "@/lib/gameAssets";
 import ProfileButtons from "@/components/ProfileButtons";
 
+function truncateHash(hash: string): string {
+  if (hash.length <= 12) {
+    return hash;
+  }
+
+  const start = hash.substring(0, 6);
+  const end = hash.substring(hash.length - 6);
+  return `${start}...${end}`;
+}
+
 type Props = {
   params: { id: string };
   searchParams: { [key: string]: string | string[] | undefined };
@@ -186,7 +196,7 @@ export default async function Page({ params, searchParams }: Props) {
             >
               NFT Contract Address:{" "}
               <span className="text-blue-500 p-1 px-2 rounded bg-slate-800">
-                {nft.contractAddress}
+                {truncateHash(nft.contractAddress)}
               </span>
             </a>
             <a
@@ -195,14 +205,16 @@ export default async function Page({ params, searchParams }: Props) {
             >
               Minting Transaction:{" "}
               <span className="text-blue-500 p-1 px-2 rounded bg-slate-800">
-                {nft.contractHash}
+                {truncateHash(nft.contractHash)}
               </span>
             </a>
             <a href="https://sepolia.basescan.org/" target="_blank">
               Minted to:{" "}
               <span className="text-blue-500 p-1 px-2 rounded bg-slate-800">
-                {characterState?.user?.verifications[0] ??
-                  characterState?.user?.custody_address}
+                {truncateHash(
+                  characterState?.user?.verifications[0] ??
+                    characterState?.user?.custody_address
+                )}
               </span>
             </a>
           </div>
