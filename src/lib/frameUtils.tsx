@@ -19,7 +19,6 @@ export function buildFrameMetaHTML({
   buttons.forEach((button, index) => {
     // If button contains |, it means it's a redirect button
     const redirect = button.split("|");
-    console.log("redirect button", redirect);
 
     if (redirect.length == 2) {
       // If it's a redirect button, add the redirect to the list
@@ -110,8 +109,6 @@ export async function getFarcasterId(req: NextRequest): Promise<number> {
     // Retrieve & validate the frame data from the request body
     const body = await req.json();
     if (body) {
-      console.log("body", body);
-
       const frameMessage = Message.decode(
         Buffer.from(body?.trustedData?.messageBytes || "", "hex")
       );
@@ -119,8 +116,6 @@ export async function getFarcasterId(req: NextRequest): Promise<number> {
       if (result.isOk() && result.value.valid && result.value.message) {
         validatedMessage = result.value.message;
       }
-
-      console.log("validatedMessage", validatedMessage);
 
       return validatedMessage?.data?.fid as number;
     }

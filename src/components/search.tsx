@@ -32,7 +32,6 @@ const SearchComponent = () => {
       body: JSON.stringify({ query }),
     });
     const data = (await response.json()) as SearchResult[];
-    console.log(data);
 
     setSearchResults(data);
     setSearching(false);

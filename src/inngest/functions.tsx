@@ -30,7 +30,7 @@ async function getNewContractAddress(
       topics: Array.from(log.topics),
       data: log.data,
     });
-    console.log("Log data", logdata);
+
     if (logdata?.name == "NewMintCreated") {
       return logdata?.args?.contractAddress;
     }

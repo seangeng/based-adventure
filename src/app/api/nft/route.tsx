@@ -20,13 +20,10 @@ export async function GET(request: Request) {
   ).then((res) => res.arrayBuffer());
 
   // Fetch the character state from the API
-  console.log("Fetching character state");
   const dataEndpoint = `${process.env.DOMAIN}/api/character?fid=${fid}`;
   const characterState = await fetch(
     new URL(dataEndpoint, import.meta.url)
   ).then((res) => res.json());
-
-  console.log("characterState", characterState);
 
   if (!characterState) {
     return new Response(null, { status: 404 });
