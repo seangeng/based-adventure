@@ -117,9 +117,6 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
                 mints: mintTxHash,
                 mintedBy: fid,
               },
-              $inc: {
-                mints: 1,
-              },
             }
           );
 
