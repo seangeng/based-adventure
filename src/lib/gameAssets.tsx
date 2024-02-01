@@ -99,12 +99,12 @@ export const gameSettings = {
     name: "Satoshi Street",
     description: "A historic site where the blockchain journey began.",
   },
-  /*
   "private-key-peninsula": {
     name: "Private Key Peninsula",
     description:
       "A secure and inaccessible land accessible only by a private key.",
   },
+  /*
   "hard-fork-highlands": {
     name: "Hard Fork Highlands",
     description: "A rugged terrain representing major blockchain updates.",
@@ -346,9 +346,7 @@ export function buildPromptImageParams(
   }
 
   if (setting?.name && setting?.image) {
-    params += `&s=${encodeURIComponent(setting.name)}&si=${encodeURIComponent(
-      setting.image
-    )}`;
+    params += `&s=${setting.name}&si=${setting.image}`;
   }
 
   return params;

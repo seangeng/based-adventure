@@ -103,9 +103,7 @@ ${JSON.stringify({
           title: "Continue your Base Quest",
           image: `api/image/prompt?text=${encodeURIComponent(
             promptText
-          )}&character=${character}&si=${encodeURIComponent(
-            setting.image
-          )}&s=${encodeURIComponent(setting.name)}`,
+          )}&character=${character}&si=${setting.image}&s=${setting.name}`,
           post_url: "api/prompt",
           buttons: buttons,
         }),
