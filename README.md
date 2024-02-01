@@ -9,16 +9,17 @@ Base Quest is still a work in progress and subject to change.
 
 Follow me on Farcaster for the latest game link: https://warpcast.com/seangeng
 
-## Todo
+## Features
 
-- Leaderboard (✅ testing)
-- Option to continue vs start a new game (✅ testing)
-- Issue Character NFTs on Base & save state to them (✅ testing)
+- AI Driven Gameplay ✅
+- Leaderboard ✅
+- Option to continue vs start a new game ✅
+- Issue Character NFTs on Base & save state to them ✅
 - Notifications
 - Character attributes
-- Game backgrounds & environments
+- Game backgrounds & environments (✅ testing)
 - $EXP Tokens
-- Character profile links & PvP
+- Character profile links & PvP (✅ testing)
 - Multi-player quests
 
 ## How it Works
