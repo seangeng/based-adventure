@@ -63,12 +63,19 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       const prevPrompt = characterState.prevPrompt;
 
       let setting = characterState?.setting ?? getRandomGameSetting();
+      let settingPrompt =
+        "Setting: " + setting.name + " - " + setting.description;
       if (characterState?.newSetting) {
         setting = getRandomGameSetting();
+        settingPrompt =
+          "Character is in a new setting: " +
+          setting.name +
+          " - " +
+          setting.description;
       }
 
       const prompt = `The user is a ${character} (Health: ${currenHealth}/100) continuing their adventure.
-Setting: ${setting?.name} - ${setting?.description}
+${settingPrompt}
 
 When given the prompt: ${prevPrompt}
 The user has chosen: ${buttonValue}
@@ -78,7 +85,7 @@ Follow the instructions:
 - Present the user with either 2 or 4 action buttons (either emoji(s) or short text up to 12 characters)
 - Give experience points (exp) between 0 and 100.  Return 0 exp for unmeaningful actions.
 - Return change in health between -100 and 100.  Return 0 for unmeaningful actions.
-- (Optional) Return true for newSetting if the user has taken an action will change the setting next turn.
+- Return true for newSetting if the user has taken an action will change the setting.
 
 Return only a JSON response like: 
 ${JSON.stringify({
@@ -145,6 +152,9 @@ ${JSON.stringify({
             level: level,
             newSetting: json.newSetting ?? false,
             setting: setting,
+          },
+          $addToSet: {
+            settingsHistory: setting.image,
           },
           $inc: { turns: 1 },
         },
