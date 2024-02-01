@@ -29,11 +29,16 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
   // If there's a redirect, respond with proper redirect
   // Shorten the URL length down
   const redirects = url.searchParams.get("r")?.split(",") ?? [];
+  if (redirects.length > 0) {
+    console.log("redirects", redirects);
+  }
+
   if (
     redirects &&
     redirects[frameData.buttonIndex] !== undefined &&
     redirects[frameData.buttonIndex] !== ""
   ) {
+    console.log("Redirecting to", redirects[frameData.buttonIndex]);
     return new NextResponse(null, {
       status: 302,
       headers: {
