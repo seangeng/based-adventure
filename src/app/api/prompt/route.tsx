@@ -75,8 +75,7 @@ The user has chosen: ${buttonValue}
   
 Follow the instructions:
 - Write a follow up prompt to continue the adventure (up to 100 characters - emojis allowed)
-- Present the user with either 2 or 4 action buttons
-- Buttons should be either emoji(s) or short text (up to 12 characters)
+- Present the user with either 2 or 4 action buttons (either emoji(s) or short text up to 12 characters)
 - Give experience points (exp) between 0 and 100.  Return 0 exp for unmeaningful actions.
 - Return change in health between -100 and 100.  Return 0 for unmeaningful actions.
 - (Optional) Return true for newSetting if the user has taken an action will change the setting next turn.

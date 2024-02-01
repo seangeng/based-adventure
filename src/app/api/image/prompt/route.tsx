@@ -82,7 +82,7 @@ export async function GET(request: Request) {
             width="1200"
             height="630"
             // @ts-ignore
-            src={`${process.env.DOMAIN}/${settingImage}.webp`}
+            src={`${process.env.DOMAIN}/bg/${settingImage}.jpg`}
             style={{
               position: "absolute",
               top: 0,
