@@ -16,6 +16,7 @@ export function buildFrameMetaHTML({
   // Build buttons meta
   let buttonsMeta = "";
   const redirects = [] as string[];
+  let redirectsCount = 0;
   buttons.forEach((button, index) => {
     // If button contains |, it means it's a redirect button
     const redirect = button.split("|");
@@ -23,6 +24,7 @@ export function buildFrameMetaHTML({
     if (redirect.length == 2) {
       // If it's a redirect button, add the redirect to the list
       redirects.push(redirect[1]);
+      redirectsCount++;
       // Add the button meta with the redirect
       buttonsMeta += `<meta name="fc:frame:button:${index + 1}" content="${
         redirect[0]
@@ -52,7 +54,7 @@ export function buildFrameMetaHTML({
             <meta name="fc:frame:post_url" content="${
               process.env.DOMAIN
             }/${post_url}${
-    redirects.length > 0 ? `&r=${encodeURIComponent(redirects.join(","))}` : ""
+    redirectsCount > 0 ? `&r=${encodeURIComponent(redirects.join(","))}` : ""
   }">
             ${buttonsMeta}
         </head>
