@@ -25,9 +25,12 @@ export function buildFrameMetaHTML({
       // If it's a redirect button, add the redirect to the list
       redirects.push(redirect[1]);
       // Add the button meta with the redirect
+      buttonsMeta += `<meta name="fc:frame:button:${index + 1}" content="${
+        redirect[0]
+      }">`;
       buttonsMeta += `<meta name="fc:frame:button:${
         index + 1
-      }:post_redirect" content="${redirect[0]}">`;
+      }:action" content="post_redirect">`;
     } else {
       // If it's not a redirect button, add the regular button meta
       buttonsMeta += `<meta name="fc:frame:button:${
