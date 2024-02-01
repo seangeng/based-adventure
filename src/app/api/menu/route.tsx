@@ -161,7 +161,8 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
           health: characterState.health ?? 100,
           image: characterState.nft?.thumbnail ?? undefined,
         },
-        characterState.prevPrompt
+        characterState.prevPrompt,
+        characterState.setting
       );
 
       return new NextResponse(

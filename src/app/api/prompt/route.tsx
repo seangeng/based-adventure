@@ -6,6 +6,7 @@ import {
   calculateCharacterState,
 } from "@/lib/gameAssets";
 import { modelId } from "@/lib/constants";
+import { getRandomGameSetting } from "@/lib/gameAssets";
 
 // This is the general route that the user will see after they select a character class from /api/start-adventure
 const headers = {
@@ -61,7 +62,13 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       const currenHealth = characterState?.health ? characterState.health : 100;
       const prevPrompt = characterState.prevPrompt;
 
+      let setting = characterState?.setting ?? getRandomGameSetting();
+      if (characterState?.newSetting) {
+        setting = getRandomGameSetting();
+      }
+
       const prompt = `The user is a ${character} (Health: ${currenHealth}/100) continuing their adventure.
+Setting: ${setting?.name} - ${setting?.description}
 
 When given the prompt: ${prevPrompt}
 The user has chosen: ${buttonValue}
@@ -72,6 +79,7 @@ Follow the instructions:
 - Buttons should be either emoji(s) or short text (up to 12 characters)
 - Give experience points (exp) between 0 and 100.  Return 0 exp for unmeaningful actions.
 - Return change in health between -100 and 100.  Return 0 for unmeaningful actions.
+- (Optional) Return true for newSetting if the user has taken an action will change the setting next turn.
 
 Return only a JSON response like: 
 ${JSON.stringify({
@@ -79,6 +87,7 @@ ${JSON.stringify({
   buttons: ["...", "..."],
   exp: 0,
   health: 0,
+  newSetting: false,
 })}`;
 
       const completion = await openai.chat.completions.create({
@@ -135,6 +144,8 @@ ${JSON.stringify({
             exp: typeof exp === "number" ? exp : 0,
             lastAction: new Date(),
             level: level,
+            newSetting: json.newSetting ?? false,
+            setting: setting,
           },
           $inc: { turns: 1 },
         },
@@ -151,7 +162,8 @@ ${JSON.stringify({
           expChange: json.exp,
           healthChange: json.health,
         },
-        promptText
+        promptText,
+        setting
       );
 
       return new NextResponse(

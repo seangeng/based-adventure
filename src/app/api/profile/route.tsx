@@ -112,6 +112,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
             {
               $addToSet: {
                 mints: mintTxHash,
+                mintedBy: fid,
               },
               $inc: {
                 mints: 1,

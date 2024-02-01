@@ -21,6 +21,10 @@ export async function GET(request: Request) {
   const hasImage = searchParams.has("image");
   const image = hasImage ? searchParams.get("image") : "";
 
+  const hasSetting = searchParams.has("s") && searchParams.get("si");
+  const settingName = hasSetting ? searchParams.get("s") : "";
+  const settingImage = hasSetting ? searchParams.get("si")?.trim() : "";
+
   // Optional params (health and exp)
   const expChange = searchParams.get("expChange") ?? null;
   const exp = searchParams.get("exp") ?? null;
@@ -54,8 +58,45 @@ export async function GET(request: Request) {
           justifyContent: "center",
           alignItems: "center",
           fontFamily: '"Typewriter"',
+          textShadow: "0 0 5px black",
         }}
       >
+        {hasSetting && settingName != "" ? (
+          <div
+            style={{
+              fontSize: 18,
+              color: "#3773F5",
+              display: "flex",
+              position: "absolute",
+              top: 64,
+              left: 67,
+            }}
+          >
+            {settingName}
+          </div>
+        ) : (
+          ""
+        )}
+        {hasSetting && settingImage != "" ? (
+          <img
+            width="1200"
+            height="630"
+            // @ts-ignore
+            src={`${process.env.DOMAIN}/${settingImage}.jpg`}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              zIndex: -1,
+              opacity: 0.2,
+              boxShadow:
+                "0 0 20px 80px rgba(0,0,0,0.7) inset, 0 0 20px 20px rgba(0,0,0,0.7) inset",
+              objectFit: "cover",
+            }}
+          />
+        ) : (
+          ""
+        )}
         <div
           style={{
             display: "flex",
@@ -63,6 +104,7 @@ export async function GET(request: Request) {
             justifyContent: "center",
             gap: 0,
             wordBreak: "break-word",
+            textShadow: "2px 0 3px black",
           }}
         >
           <p>{text}</p>

@@ -3,6 +3,7 @@ import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
 import { db, openai, parseJSON } from "@/lib/dependencies";
 import { modelId } from "@/lib/constants";
 import { inngest } from "@/inngest/client";
+import { getRandomGameSetting } from "@/lib/gameAssets";
 
 // This is the route that the user will be redirected to after they select a character class from /api/spawn
 const headers = {
@@ -20,7 +21,11 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     if (characterState) {
       const characterClass = characterState.buttons[frameData.buttonIndex];
 
+      const setting = characterState.setting || getRandomGameSetting();
+
       const prompt = `The user is a ${characterClass} starting their first adventure.
+
+Setting: ${setting.name} - ${setting.description}
       
 Write a character narration prompt (up to 100 characters), and present the user with either 2 or 4 action options to continue the story.
 Action options should be either emoji(s) or short button text (up to 12 characters)
@@ -75,6 +80,7 @@ ${JSON.stringify({
             buttons,
             class: characterClass,
             lastAction: new Date(),
+            setting: setting,
           },
           $inc: { turns: 1 },
         },
@@ -97,7 +103,9 @@ ${JSON.stringify({
           title: "Continue your Base Quest",
           image: `api/image/prompt?text=${encodeURIComponent(
             promptText
-          )}&character=${character}`,
+          )}&character=${character}&si=${encodeURIComponent(
+            setting.image
+          )}&s=${encodeURIComponent(setting.name)}`,
           post_url: "api/prompt",
           buttons: buttons,
         }),

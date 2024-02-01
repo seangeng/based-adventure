@@ -3,6 +3,7 @@ import { buildFrameMetaHTML, getFrameData } from "@/lib/frameUtils";
 import { db } from "@/lib/dependencies";
 import { kv } from "@vercel/kv";
 import { getFarcasterUsersFromFID } from "@/lib/farcasterUtils";
+import { getRandomGameSetting } from "@/lib/gameAssets";
 
 const headers = {
   "Content-Type": "text/html",
@@ -45,6 +46,9 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     }
   }
 
+  // Randomly select a setting
+  const setting = getRandomGameSetting();
+
   // Initalize a new state for this FID
   db.collection("characters").updateOne(
     { fid },
@@ -57,6 +61,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
         health: 100,
         level: 1,
         lastAction: new Date(),
+        setting: setting,
       },
     },
     { upsert: true }

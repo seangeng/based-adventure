@@ -1,4 +1,241 @@
-import { db } from "@/lib/dependencies";
+export const gameSettings = {
+  "digital-citadel": {
+    name: "Digital Citadel",
+    description: "A fortress filled with cryptographic puzzles.",
+  },
+  "hash-forest": {
+    name: "Hash Forest",
+    description:
+      "A dense woodland where every tree represents a block in the chain.",
+  },
+  "smart-contract-city": {
+    name: "Smart Contract City",
+    description:
+      "A bustling metropolis where every interaction is governed by smart contracts.",
+  },
+  "decentralized-desert": {
+    name: "Decentralized Desert",
+    description:
+      "An expansive desert with hidden oases of blockchain startups.",
+  },
+  "blockchain-bay": {
+    name: "Blockchain Bay",
+    description: "A coastal area where digital pirates exchange NFT treasures.",
+  },
+  "mining-mountain": {
+    name: "Mining Mountain",
+    description:
+      "A resource-rich area where miners compete for valuable crypto.",
+  },
+  "ledger-lagoon": {
+    name: "Ledger Lagoon",
+    description:
+      "A mysterious waterbody with a history of all blockchain transactions.",
+  },
+  "encryption-enclave": {
+    name: "Encryption Enclave",
+    description:
+      "A secretive community that specializes in cryptographic security.",
+  },
+  "token-town": {
+    name: "Token Town",
+    description: "A lively place where various cryptocurrencies coexist.",
+  },
+  "validator-valley": {
+    name: "Validator Valley",
+    description:
+      "A peaceful valley governed by a council of blockchain validators.",
+  },
+  "fork-forest": {
+    name: "Fork Forest",
+    description:
+      "A woodland split into two paths, symbolizing a blockchain fork.",
+  },
+  "wallet-waterfall": {
+    name: "Wallet Waterfall",
+    description: "A majestic waterfall hiding a secret digital wallet.",
+  },
+  "staking-steppes": {
+    name: "Staking Steppes",
+    description:
+      "Vast grasslands where staking and farming are the way of life.",
+  },
+  "defi-dome": {
+    name: "DeFi Dome",
+    description: "A futuristic arena for decentralized finance challenges.",
+  },
+  "gas-gorge": {
+    name: "Gas Gorge",
+    description: "A treacherous canyon with fluctuating gas fees.",
+  },
+  "nft-nook": {
+    name: "NFT Nook",
+    description: "A hidden corner of the world filled with unique digital art.",
+  },
+  "altcoin-alps": {
+    name: "Altcoin Alps",
+    description:
+      "Mountain ranges representing the volatile world of alternative coins.",
+  },
+  "consensus-coast": {
+    name: "Consensus Coast",
+    description: "A peaceful shore where blockchain protocols are debated.",
+  },
+  "immutable-isle": {
+    name: "Immutable Isle",
+    description:
+      "An island where history is perfectly preserved on the blockchain.",
+  },
+  "layer-two-labyrinth": {
+    name: "Layer Two Labyrinth",
+    description:
+      "A complex maze representing the layered nature of blockchain.",
+  },
+  "oracle-oasis": {
+    name: "Oracle Oasis",
+    description: "A mystical place where real-world data meets the blockchain.",
+  },
+  "satoshi-street": {
+    name: "Satoshi Street",
+    description: "A historic site where the blockchain journey began.",
+  },
+  /*
+  "private-key-peninsula": {
+    name: "Private Key Peninsula",
+    description:
+      "A secure and inaccessible land accessible only by a private key.",
+  },
+  "hard-fork-highlands": {
+    name: "Hard Fork Highlands",
+    description: "A rugged terrain representing major blockchain updates.",
+  },
+  "signature-swamp": {
+    name: "Signature Swamp",
+    description: "A boggy area where every step requires verification.",
+  },
+  "transaction-trail": {
+    name: "Transaction Trail",
+    description: "A path where adventurers trade and transact.",
+  },
+  "block-battlegrounds": {
+    name: "Block Battlegrounds",
+    description: "An arena for resolving blockchain disputes.",
+  },
+  "cypher-city": {
+    name: "Cypher City",
+    description: "An urban setting with a focus on cryptography and security.",
+  },
+  "proof-of-work-plains": {
+    name: "Proof-of-Work Plains",
+    description: "Expansive fields where mining challenges occur.",
+  },
+  "ledger-library": {
+    name: "Ledger Library",
+    description: "An archive of all blockchain transactions and histories.",
+  },
+  "dapp-dunes": {
+    name: "DApp Dunes",
+    description: "Desolate sands where decentralized apps are tested.",
+  },
+  "token-temple": {
+    name: "Token Temple",
+    description: "A sacred place for the worship of cryptocurrencies.",
+  },
+  "genesis-grove": {
+    name: "Genesis Grove",
+    description: "A serene garden where the first block was mined.",
+  },
+  "node-network": {
+    name: "Node Network",
+    description: "A complex web of interconnected paths and puzzles.",
+  },
+  "ethereum-estuary": {
+    name: "Ethereum Estuary",
+    description: "A place where diverse blockchain ecosystems merge.",
+  },
+  "crypto-cave": {
+    name: "Crypto Cave",
+    description: "A mysterious cavern filled with digital riches.",
+  },
+  "scalability-summit": {
+    name: "Scalability Summit",
+    description:
+      "A high peak representing the pinnacle of blockchain efficiency.",
+  },
+  "decryption-den": {
+    name: "Decryption Den",
+    description: "A challenging area where codes must be deciphered.",
+  },
+  "governance-gully": {
+    name: "Governance Gully",
+    description: "A deep valley where blockchain governance is discussed.",
+  },
+  "hodl-hills": {
+    name: "Hodl Hills",
+    description: "Rolling hills where long-term investors gather.",
+  },
+  "fungibility-forest": {
+    name: "Fungibility Forest",
+    description: "A bizarre forest where everything is interchangeable.",
+  },
+  "dao-delta": {
+    name: "DAO Delta",
+    description:
+      "A fertile delta run by a decentralized autonomous organization.",
+  },
+  "smart-contract-sanctuary": {
+    name: "Smart Contract Sanctuary",
+    description: "A safe haven for developing and testing smart contracts.",
+  },
+  "hash-harbor": {
+    name: "Hash Harbor",
+    description: "A port where blockchain data is shipped in and out.",
+  },
+  "sidechain-sea": {
+    name: "Sidechain Sea",
+    description: "Vast waters representing parallel blockchain networks.",
+  },
+  "cryptocurrency-capitol": {
+    name: "Cryptocurrency Capitol",
+    description: "The central hub of all digital currency activities.",
+  },
+  "lightning-network-lanes": {
+    name: "Lightning Network Lanes",
+    description: "Fast-moving paths for rapid transactions.",
+  },
+  "sharding-shores": {
+    name: "Sharding Shores",
+    description: "A beach where blockchain scalability solutions are explored.",
+  },
+  "gas-giant": {
+    name: "Gas Giant",
+    description: "A planet in the digital space governed by gas prices.",
+  },
+  "blockchain-bazaar": {
+    name: "Blockchain Bazaar",
+    description:
+      "A marketplace for trading blockchain-based goods and services.",
+  },
+  */
+} as {
+  [key: string]: {
+    name: string;
+    description: string;
+  };
+};
+
+export function getRandomGameSetting() {
+  const settings = Object.keys(gameSettings);
+  const key = Math.floor(Math.random() * settings.length);
+
+  const image = settings[key] + (Math.random() < 0.5 ? "-1" : "-2");
+
+  return {
+    key: settings[key],
+    image,
+    ...gameSettings[settings[key]],
+  };
+}
 
 export function calculateLevel(exp: number): number {
   let level = 0;
@@ -82,7 +319,13 @@ export function buildPromptImageParams(
     healthChange?: number;
     image?: string;
   },
-  prompt: string
+  prompt: string,
+  setting?: {
+    key: string;
+    name: string;
+    description: string;
+    image: string;
+  }
 ) {
   const { description, health, exp } = calculateCharacterState(character);
 
@@ -100,6 +343,12 @@ export function buildPromptImageParams(
 
   if (character.image) {
     params += `&image=${encodeURIComponent(character.image)}`;
+  }
+
+  if (setting?.name && setting?.image) {
+    params += `&s=${encodeURIComponent(setting.name)}&si=${encodeURIComponent(
+      setting.image
+    )}`;
   }
 
   return params;
