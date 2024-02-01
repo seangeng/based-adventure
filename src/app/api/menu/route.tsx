@@ -71,10 +71,15 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       // Has a character, give them the option to continue
       const character = `Level ${characterState.level} • ${characterState.class}`;
 
+      let continueUrl = `api/image/prompt?text=${`Continue your quest from where you left off?`}&character=${character}`;
+      if (characterState.setting?.image) {
+        continueUrl += `&si=${characterState.setting.image}&s=${characterState.setting.name}`;
+      }
+
       return new NextResponse(
         buildFrameMetaHTML({
           title: "Continue your adventure?",
-          image: `api/image/prompt?text=${`Continue your quest from where you left off?`}&character=${character}`,
+          image: continueUrl,
           post_url: `api/menu?buttons=${encodeURIComponent(
             "continue,restart,profile" // New buttons should be passed to the menu router
           )}`,

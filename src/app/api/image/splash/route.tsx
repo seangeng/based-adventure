@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   ).then((res) => res.arrayBuffer());
 
   const imageData = await fetch(
-    new URL("../../../../../public/base-quest-bg.jpg", import.meta.url)
+    new URL("../../../../../public/base-quest-bg-sm.jpg", import.meta.url)
   ).then((res) => res.arrayBuffer());
 
   let charactersCount = 0;
