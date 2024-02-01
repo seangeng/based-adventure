@@ -107,7 +107,7 @@ export default async function Page({ params, searchParams }: Props) {
       <div className="flex flex-col gap-8 items-center w-2/3 max-sm:w-full">
         <div className="w-2/3 max-sm:w-full text-center">
           <p className="text-lg text-gray-500">
-            Post this URL as a Frame on Warpcast to interact with this profile:
+            {`Post this URL as a Frame on Warpcast to interact with this profile:`}
           </p>
           <CopyPasteInput
             value={`${process.env.DOMAIN}/profile/${params.id}`}
@@ -146,7 +146,7 @@ export default async function Page({ params, searchParams }: Props) {
               >
                 Base
               </a>{" "}
-              for {characterState?.user?.username}'s character:
+              {`for ${characterState?.user?.username}'s character:`}
             </p>
             <a
               href={`https://sepolia.basescan.org/address/${nft.contractAddress}`}

@@ -36,21 +36,21 @@ export default function Page() {
       </a>
       <div className="flex max-sm:flex-col w-2/3 max-sm:w-full mt-8 align-middle items-center gap-4">
         <p className="text-gray-400 my-4">
-          Base Quest is an interactive Frames based text adventure game. It can
-          only be accessed through Warpcast & clients that support Frames.
+          {`Base Quest is an interactive Frames based text adventure game. It can
+          only be accessed through Warpcast & clients that support Frames.`}
         </p>
         <div className="w-auto">
           <a
             href={exampleWarpcastLink}
             className="mt-8 bg-blue-500 p-4 text-white px-6 rounded-md whitespace-nowrap"
           >
-            🎮 Play Base Quest
+            {`🎮 Play Base Quest`}
           </a>
         </div>
       </div>
       <div className="w-2/3 max-sm:w-full mt-8 text-center gap-4">
         <hr className="w-full border-gray-600 my-8" />
-        <p className="text-gray-400 my-4">Already have a Base Quest account?</p>
+        <p className="text-gray-400 my-4">{`Already have a Base Quest account?`}</p>
         <SearchComponent />
       </div>
     </div>
