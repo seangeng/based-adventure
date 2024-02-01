@@ -150,10 +150,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
               title: "Base Quest",
               image: `api/image/prompt?text=${`🤝 You've minted ${characterState.user?.username}'s character to your party!`}&subtext=${mintTxHash}`,
               post_url: `api/menu?buttons=start,minted`,
-              buttons: [
-                "Back to Base Quest ▶️",
-                `View TX|${process.env.DOMAIN}/api/redirect?tx=${mintTxHash}`,
-              ],
+              buttons: ["Back to Base Quest ▶️", `View TX|tx:${mintTxHash}`],
             }),
             { headers }
           );

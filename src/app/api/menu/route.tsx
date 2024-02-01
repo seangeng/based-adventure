@@ -38,11 +38,23 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     redirects[frameData.buttonIndex] !== undefined &&
     redirects[frameData.buttonIndex] !== ""
   ) {
-    console.log("Redirecting to", redirects[frameData.buttonIndex]);
+    // The redirect is split by a :
+    const redirect = redirects[frameData.buttonIndex].split(":");
+    const redirectType = redirect[0];
+    const redirectValue = redirect[1];
+
+    // Build the redirect
+    let redirectUrl = redirect[0];
+    if (redirectType && redirectType === "tx") {
+      redirectUrl = `https://sepolia.base.org/tx/${redirectValue}`;
+    }
+
+    console.log("Redirecting to", redirectUrl);
+
     return new NextResponse(null, {
       status: 302,
       headers: {
-        Location: redirects[frameData.buttonIndex],
+        Location: redirectUrl,
       },
     });
   }
