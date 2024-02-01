@@ -1,6 +1,5 @@
 export const runtime = "edge"; // Serve on the edge runtime for faster response times
 import { ImageResponse } from "next/og";
-import { kv } from "@vercel/kv";
 import { version } from "@/lib/constants";
 
 export async function GET(request: Request) {
@@ -14,10 +13,9 @@ export async function GET(request: Request) {
   ).then((res) => res.arrayBuffer());
 
   let charactersCount = 0;
-  try {
-    charactersCount = (await kv.get("charactersCount")) as number;
-  } catch (e) {
-    console.error(e);
+  const { searchParams } = new URL(request.url);
+  if (searchParams.has("charactersCount")) {
+    charactersCount = parseInt(searchParams.get("charactersCount") as string);
   }
 
   return new ImageResponse(
@@ -68,7 +66,7 @@ export async function GET(request: Request) {
           Version {version}
         </div>
 
-        {charactersCount && charactersCount > 0 && (
+        {charactersCount && charactersCount > 0 ? (
           <div
             style={{
               display: "flex",
@@ -84,6 +82,8 @@ export async function GET(request: Request) {
           >
             <p>👑 Join {charactersCount as React.ReactNode} players</p>
           </div>
+        ) : (
+          ""
         )}
       </div>
     ),

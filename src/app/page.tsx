@@ -1,28 +1,36 @@
 import { getFrameMetadata } from "@coinbase/onchainkit";
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import { exampleWarpcastLink } from "@/lib/constants";
 import SearchComponent from "@/components/search";
+import { db } from "@/lib/dependencies";
 
-const frameMetadata = getFrameMetadata({
-  buttons: ["Start your Adventure! ▶️", "Leaderboard 🏆"],
-  image: `${process.env.DOMAIN}/api/image/splash`,
-  post_url: `${process.env.DOMAIN}/api/menu?buttons=${encodeURIComponent(
-    "start,leaderboard" // Buttons should be passed to the menu router
-  )}`,
-});
+export async function generateMetadata(
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // Fetchs some basic stats to pass to metadata
+  const playersCount = await db.collection("characters").countDocuments();
 
-export const metadata: Metadata = {
-  title: "Base Quest - Start your Adventure!",
-  description: "AI Powered Text Adventure on Base L2",
-  openGraph: {
+  const frameMetadata = getFrameMetadata({
+    buttons: ["Start your Adventure! ▶️", "Leaderboard 🏆"],
+    image: `${process.env.DOMAIN}/api/image/splash?charactersCount=${playersCount}`,
+    post_url: `${process.env.DOMAIN}/api/menu?buttons=${encodeURIComponent(
+      "start,leaderboard" // Buttons should be passed to the menu router
+    )}`,
+  });
+
+  return {
     title: "Base Quest - Start your Adventure!",
     description: "AI Powered Text Adventure on Base L2",
-    images: [`${process.env.DOMAIN}/api/image/splash`],
-  },
-  other: {
-    ...frameMetadata,
-  },
-};
+    openGraph: {
+      title: "Base Quest - Start your Adventure!",
+      description: "AI Powered Text Adventure on Base L2",
+      images: [`${process.env.DOMAIN}/api/image/splash`],
+    },
+    other: {
+      ...frameMetadata,
+    },
+  };
+}
 
 export default function Page() {
   return (
