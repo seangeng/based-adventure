@@ -22,7 +22,7 @@ export async function getFarcasterUsersFromFID(
   const headers = {
     "Content-Type": "text/html",
     accept: "application/json",
-    api_key: process.env.NEYNAR_API_KEY || "",
+    api_key: process.env.NEYNAR_API_KEY || "NEYNAR_API_DOCS",
   };
 
   let fidsQueryParam: string;
@@ -48,4 +48,43 @@ export async function getFarcasterUsersFromFID(
     return usersByFID as farcasterUser;
   }
   return;
+}
+
+export async function getSignerStatus(signerUuid: string) {
+  const headers = {
+    "Content-Type": "text/html",
+    accept: "application/json",
+    api_key: process.env.NEYNAR_API_KEY || "NEYNAR_API_DOCS",
+  };
+
+  const resp = await fetch(
+    `https://api.neynar.com/v2/farcaster/signer?signer_uuid=${signerUuid}`,
+    { headers }
+  );
+  const responseBody = await resp.json();
+  return responseBody;
+}
+
+export async function postCast({ message }: { message: string }) {
+  const headers = {
+    "Content-Type": "application/json",
+    accept: "application/json",
+    api_key: process.env.NEYNAR_API_KEY || "NEYNAR_API_DOCS",
+  };
+
+  const body = JSON.stringify({
+    signer_uuid: process.env.NEYNAR_BOT_SIGNER,
+    text: message,
+  });
+
+  console.log("Posting cast", body);
+
+  const resp = await fetch("https://api.neynar.com/v2/farcaster/cast", {
+    method: "POST",
+    headers,
+    body,
+  });
+
+  const responseBody = await resp.json();
+  return responseBody;
 }

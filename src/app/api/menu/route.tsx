@@ -204,7 +204,10 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     }
   } else if (buttonSelected == "restart") {
     // User is restarting... delete the character state
+    const characterState = await db.collection("characters").findOne({ fid });
     await db.collection("characters").deleteOne({ fid });
+    // Save to deleted characters
+    await db.collection("deleted_characters").insertOne({ characterState });
 
     return new NextResponse(
       buildFrameMetaHTML({

@@ -4,6 +4,7 @@ import { db, getUserRankByFid } from "@/lib/dependencies";
 import CopyPasteInput from "@/components/CopyPasteInput";
 import { calculateCharacterState } from "@/lib/gameAssets";
 import ProfileButtons from "@/components/ProfileButtons";
+import ogs from "open-graph-scraper";
 
 function truncateHash(hash: string): string {
   if (hash.length <= 12) {
@@ -102,6 +103,15 @@ export default async function Page({ params, searchParams }: Props) {
     $or: [{ fid: parseInt(params.id) }, { "user.username": params.id }],
   });
 
+  if (!characterState) {
+    // Return 404
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen py-2 h-full w-full max-sm:p-6">
+        <h1 className="text-4xl text-gray-500">Character not found</h1>
+      </div>
+    );
+  }
+
   // Get the rank
   const userRank = await getUserRankByFid(characterState?.fid);
 
@@ -145,6 +155,25 @@ export default async function Page({ params, searchParams }: Props) {
   const userWalletAddress =
     characterState?.user?.verifications[0] ??
     characterState?.user?.custody_address;
+
+  let nftImage = `${process.env.DOMAIN}/api/nft?fid=${characterState?.fid}`;
+  let marketplaceUrl = "";
+  if (nft && nft?.contractAddress) {
+    marketplaceUrl = `https://testnets.opensea.io/assets/base-sepolia/${nft.contractAddress}/1`;
+
+    const { result } = await ogs({
+      url: marketplaceUrl,
+    });
+
+    // If has OG image and doesn't contain og-images/Metadata-Image.png
+    if (
+      result.ogImage &&
+      result.ogImage[0].url &&
+      !result.ogImage[0].url.includes("og-images/Metadata-Image.png")
+    ) {
+      nftImage = result.ogImage[0].url;
+    }
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 h-full w-full max-sm:p-6">
@@ -194,6 +223,26 @@ export default async function Page({ params, searchParams }: Props) {
               </a>{" "}
               {`for ${characterState?.user?.username}'s character:`}
             </p>
+
+            {nftImage != "" && (
+              <div className="flex flex-col gap-4 border border-slate-700 p-5 items-center w-1/2 mx-auto">
+                <p className="text-gray-500">Character NFT</p>
+                <a href={marketplaceUrl} target="_blank">
+                  <img
+                    src={nftImage}
+                    className="w-full border-2 border-slate-800"
+                  />
+                </a>
+                <a
+                  href={marketplaceUrl}
+                  target="_blank"
+                  className="flex-none rounded-md bg-indigo-500 px-3.5 py-2.5 w-full font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                >
+                  View NFT
+                </a>
+              </div>
+            )}
+
             <a
               href={`https://sepolia.basescan.org/address/${nft.contractAddress}`}
               target="_blank"

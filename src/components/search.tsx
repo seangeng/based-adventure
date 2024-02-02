@@ -89,7 +89,7 @@ const SearchComponent = () => {
                   <img
                     src={result.nft?.thumbnail ?? result.user?.pfp_url ?? ""}
                     alt="User Profile Picture"
-                    className="w-14 h-14 rounded-full"
+                    className="w-14 h-14 border-2 border-slate-800"
                   />
                   <p className="text-white">{result.user.username}</p>
                 </div>

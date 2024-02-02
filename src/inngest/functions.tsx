@@ -2,13 +2,14 @@ import { inngest } from "./client";
 import { NonRetriableError } from "inngest";
 import { db, openai } from "@/lib/dependencies";
 import { ethers } from "ethers";
-import InstaMintContract from "../app/assets/contracts/InstaMint.json";
 import InstaMintFactory from "../app/assets/contracts/InstaMintFactory.json";
 import { getFarcasterUsersFromFID } from "@/lib/farcasterUtils";
 import { default as axios } from "axios";
 import { put } from "@vercel/blob";
 import { JsonRpcProvider } from "ethers";
 import sharp from "sharp";
+import { postCast, getSignerStatus } from "@/lib/farcasterUtils";
+import { mint } from "@/lib/dependencies";
 
 async function getNewContractAddress(
   txHash: string,
@@ -308,6 +309,27 @@ export const createCharacterNFT = inngest.createFunction(
       });
     }
 
+    // Mint the NFT
+    const mintTx = await step.run("Minting NFT", async () => {
+      // Mint 1 to the user's wallet
+      const mintTx = await mint(nftContract, userWalletAddress);
+
+      console.log("Minted", mintTx);
+
+      // Update database
+      await db.collection("nfts").updateOne(
+        { fid: event.data.fid },
+        {
+          $set: {
+            txnHash: mintTx,
+          },
+        },
+        { upsert: true }
+      );
+
+      return mintTx;
+    });
+
     // Update the database with a notification state
     await db.collection("characters").updateOne(
       { fid: event.data.fid },
@@ -333,6 +355,7 @@ export const createCharacterNFT = inngest.createFunction(
       image,
       contract: nftContract,
       contractHash: nftContractHash,
+      mintTx: mintTx,
     };
   }
 );
@@ -342,7 +365,18 @@ export const backfillData = inngest.createFunction(
   { event: "backfillData" },
   async ({ event, step }) => {
     // Backfill the data
-    await step.run("Backfilling Data", async () => {
+    const job = await step.run("Backfilling Data", async () => {
+      const status = await getSignerStatus(process.env.NEYNAR_BOT_SIGNER ?? "");
+      console.log("Signer status", status);
+
+      return status;
+
+      const cast = await postCast({
+        message: "Backfilling data",
+      });
+
+      return cast;
+
       const characters = await db
         .collection("characters")
         .find({
@@ -369,5 +403,7 @@ export const backfillData = inngest.createFunction(
         }
       }
     });
+
+    return job;
   }
 );

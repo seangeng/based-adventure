@@ -45,7 +45,10 @@ export async function getUserRankByFid(fid: number) {
   return usersSortedByLevel.findIndex((user) => user.fid === fid) + 1 || 0;
 }
 
-export async function mint(contractAddress: string, userWalletAddress: string) {
+export async function mint(
+  contractAddress: string,
+  userWalletAddress: string
+): Promise<string> {
   const privateKey = process.env.WALLET_PRIVATE_KEY;
   if (!privateKey) {
     throw new Error("No wallet private key found");
