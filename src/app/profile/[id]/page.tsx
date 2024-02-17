@@ -42,9 +42,9 @@ export async function generateMetadata(
   // Get the rank
   const userRank = await getUserRankByFid(characterState?.fid);
 
-  const { description } = calculateCharacterState({
+  const { description, exp } = calculateCharacterState({
     class: characterState?.class,
-    exp: characterState?.level ?? 0,
+    exp: characterState?.exp ?? 0,
     health: characterState?.health ?? 100,
   });
 
@@ -58,9 +58,7 @@ export async function generateMetadata(
     characterState?.nft?.thumbnail
   )}&character=${encodeURIComponent(description)}&turns=${
     characterState?.turns
-  }&rank=${userRank}&exp=${characterState?.exp ?? 0}&health=${
-    characterState?.health ?? 100
-  }`;
+  }&rank=${userRank}&exp=${exp ?? 0}&health=${characterState?.health ?? 100}`;
 
   const buttons = ["Add to party 🤝"];
   const buttonMap = ["add-to-party"];
@@ -117,7 +115,7 @@ export default async function Page({ params, searchParams }: Props) {
 
   const { description } = calculateCharacterState({
     class: characterState?.class,
-    exp: characterState?.level ?? 0,
+    exp: characterState?.exp ?? 0,
     health: characterState?.health ?? 100,
   });
 
